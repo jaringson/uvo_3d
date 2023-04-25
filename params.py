@@ -6,26 +6,25 @@ dt = 0.01
 sim_t = 50
 # t_plot = 1.0
 
-cvo_dt = 1.0
+cvo_dt = 0.1
 
-num_quads = 2
+num_quads = 20
 
 outfile_name = 'outfile,json'
 
 ''' CVO '''
 collision_radius = 10
 buffer_power = 10
-buffer_on = True
-collision_range = 1
+buffer_on = False
+collision_range = 100
 start_radius = 100
 
 add_kalman = True
 add_uncertianty = True
-drop_prob = 0.0
+drop_prob = 0.5
 
 gps_pos_stdev = 3.0
 gps_vel_stdev = 1.0
-
 
 
 ''' Gen Kalman Filter '''

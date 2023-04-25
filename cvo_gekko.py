@@ -21,7 +21,7 @@ class CVOGekko:
 
     def calculate_buffer(self, host_pos, invader_pos):
 
-        buffer_radius = 1.1*self.collisionRadius
+        buffer_radius = 1.5*self.collisionRadius
         power = self.bufferPower
 
         num_invaders = len(invader_pos)
@@ -46,7 +46,8 @@ class CVOGekko:
 
         avg_velocity = sum_velocity / (1.0*num_invaders)
 
-        avg_velocity /= self.max_vel
+        if norm(avg_velocity) > self.max_vel:
+            avg_velocity = avg_velocity / norm(avg_velocity) * self.max_vel 
         # set_trace()
 
         return avg_velocity
@@ -93,9 +94,9 @@ class CVOGekko:
 
             apexOfCollisionCone = (1.0-self.alpha)*av1Vo + self.alpha*av2Vo
             centerOfEllipsoid = from1XTo2X + apexOfCollisionCone
-            max_vel_uncertianty = np.max(uncertaintyVel)
 
             fromCenterToApex = apexOfCollisionCone - centerOfEllipsoid
+            max_vel_uncertianty = np.max(uncertaintyVel)
             apexOfCollisionCone += max_vel_uncertianty*fromCenterToApex/norm(fromCenterToApex)
 
             # print('apex: ', apexOfCollisionCone)
@@ -171,9 +172,9 @@ class CVOGekko:
 
         if not solve_success:
             # print('Solve Success Error')
-            sx.value = [0.0] # [av1VelDes[0,0]]
-            sy.value = [0.0] # [av1VelDes[1,0]]
-            sz.value = [0.0] # [av1VelDes[2,0]]
+            sx.value = [av1Vo[0,0]] # [av1VelDes[0,0]]
+            sy.value = [av1Vo[1,0]] # [av1VelDes[1,0]]
+            sz.value = [av1Vo[2,0]] # [av1VelDes[2,0]]
             # for c in allContraints:
             #     print("c value :", c.value)
             # print("s :", sx.value[0], sy.value[0], sz.value[0])

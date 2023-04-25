@@ -42,8 +42,7 @@ class CVOManager:
             if quadKey == self.id:
                 continue
 
-            if np.random.random() < self.drop_prob_:
-                continue
+
 
             av2Pos = allQuads[quadKey].x_ + rndnorm(0, self.gps_pos_stdev, size=(3,1))
             av2Vel = rota(allQuads[quadKey].q_, allQuads[quadKey].v_) + rndnorm(0, self.gps_vel_stdev, size=(3,1))
@@ -64,9 +63,9 @@ class CVOManager:
                 elif norm(av2Pos - av1Pos) > self.cvoGekko.collisionRange:
                     del self.allKalFilters[quadKey]
 
-                else:
-                    inX = np.block([[av2Pos], [av2Vel]])
-                    self.allKalFilters[quadKey].update(inX)
+                elif np.random.random() < self.drop_prob_:
+                        inX = np.block([[av2Pos], [av2Vel]])
+                        self.allKalFilters[quadKey].update(inX)
 
                 xhat = self.allKalFilters[quadKey].xhat_
                 P_mat = self.allKalFilters[quadKey].P_

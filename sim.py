@@ -13,6 +13,7 @@ from quad_wp_manager import WPManager
 from waypoint_generator import get_waypoints
 
 import json
+import time
 from tqdm import tqdm
 from IPython.core.debugger import set_trace
 
@@ -22,28 +23,29 @@ from multiprocessing import Pool
 allQuads = {}
 allWPManagers = {}
 allCVOManagers = {}
+t = 0
 
-def multi_cvo(data):
+def multi_cvo(id):
     global allWPManagers
     global allQuads
     global allCVOManagers
+    global t
 
-    id = data[0]
-    t = data[1]
     vel_d = allWPManagers[id].updateWaypointManager(allQuads[id].x_)
     vel_c = allCVOManagers[id].get_best_vel(allQuads, t, vel_d)
 
     return vel_c #np.array([[-10],[0],[0]])
 
-def run_sim(num_quads, collision_range, max_vel):
+def run_sim(num_quads, collision_range, max_vel, filename):
 
     global allWPManagers
     global allQuads
     global allCVOManagers
+    global t
 
     num_quads = num_quads
     radius = P.start_radius
-    seed = 0
+    seed = 0 #int(time.time())
 
     waypoints, allStartPositions = get_waypoints(radius, num_quads, P.collision_radius, seed=seed)
     print('waypoints: ', waypoints)
@@ -94,12 +96,9 @@ def run_sim(num_quads, collision_range, max_vel):
         # Propagate dynamics in between plot samples
         t_next_cvo = t + P.cvo_dt
 
-        allData = []
-        for i in range(num_quads):
-            data = [i, t]
-            allData.append(data)
+
         p = Pool()
-        allVelCon = p.map(multi_cvo, allData)
+        allVelCon = p.map(multi_cvo, range(num_quads))
 
         p.close()
 
@@ -131,7 +130,7 @@ def run_sim(num_quads, collision_range, max_vel):
 
     pbar.close()
 
-    out_file = open("data/myfile.json", "w")
+    out_file = open("data/"+filename, "w")
     json.dump(allStates, out_file, indent=3)
     out_file.close()
 
@@ -144,4 +143,4 @@ def run_sim(num_quads, collision_range, max_vel):
     # dataPlot.show()
 
 if __name__ == "__main__":
-    run_sim(P.num_quads, P.collision_range, P.max_vel)
+    run_sim(P.num_quads, P.collision_range, P.max_vel, 'myfile.json')
