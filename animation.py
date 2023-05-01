@@ -76,7 +76,7 @@ class Animation:
 
         ax.set_title(title)
 
-        maxAxis = 50
+        maxAxis = 80
         ax.set_xlim3d([-maxAxis, maxAxis])
         ax.set_ylim3d([-maxAxis, maxAxis])
         ax.set_zlim3d([-maxAxis, maxAxis])

@@ -47,7 +47,7 @@ class CVOGekko:
         avg_velocity = sum_velocity / (1.0*num_invaders)
 
         if norm(avg_velocity) > self.max_vel:
-            avg_velocity = avg_velocity / norm(avg_velocity) * self.max_vel 
+            avg_velocity = avg_velocity / norm(avg_velocity) * self.max_vel
         # set_trace()
 
         return avg_velocity
@@ -95,6 +95,7 @@ class CVOGekko:
             apexOfCollisionCone = (1.0-self.alpha)*av1Vo + self.alpha*av2Vo
             centerOfEllipsoid = from1XTo2X + apexOfCollisionCone
 
+            ''' Adding Velocity Uncertainty '''
             fromCenterToApex = apexOfCollisionCone - centerOfEllipsoid
             max_vel_uncertianty = np.max(uncertaintyVel)
             apexOfCollisionCone += max_vel_uncertianty*fromCenterToApex/norm(fromCenterToApex)
@@ -147,6 +148,9 @@ class CVOGekko:
             allContraints.append(constraint)
             m.Equation( constraint >= 0  )
 
+        normConstraint = m.Intermediate(m.sqrt(sx**2 + sy**2 + sz**2))
+        allContraints.append(normConstraint)
+        m.Equation( normConstraint <= self.max_vel )
         m.Minimize( (sx-vdx)**2 + (sy-vdy)**2 + (sz-vdz)**2 )
         m.options.SOLVER = 3 # IPOPT solver
         # m.options.MAX_ITER = 100
@@ -154,7 +158,7 @@ class CVOGekko:
         solve_success = False
         for i in range(10):
             try:
-                # print('here')
+                # print('try: ', self.id, " iter: ", i)
                 debug_val = m.solve(disp=False, debug=True)
                 solve_success = True
                 break
@@ -192,4 +196,6 @@ class CVOGekko:
         #     print("const: ", c.value)
 
         # set_trace()
+
+
         return sx.value[0], sy.value[0], sz.value[0]

@@ -3,19 +3,19 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t = 50
+sim_t = 75
 # t_plot = 1.0
 
-cvo_dt = 0.1
+cvo_dt = 1.0
 
 num_quads = 20
 
-outfile_name = 'outfile,json'
+outfile_name = 'outfile.json'
 
 ''' CVO '''
 collision_radius = 10
 buffer_power = 10
-buffer_on = False
+buffer_on = True
 collision_range = 100
 start_radius = 100
 

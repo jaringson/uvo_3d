@@ -130,7 +130,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
 
     pbar.close()
 
-    out_file = open("data/"+filename, "w")
+    out_file = open(filename, "w")
     json.dump(allStates, out_file, indent=3)
     out_file.close()
 
@@ -143,4 +143,4 @@ def run_sim(num_quads, collision_range, max_vel, filename):
     # dataPlot.show()
 
 if __name__ == "__main__":
-    run_sim(P.num_quads, P.collision_range, P.max_vel, 'myfile.json')
+    run_sim(P.num_quads, P.collision_range, P.max_vel, 'data/myfile.json')
