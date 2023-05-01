@@ -11,7 +11,7 @@ def trunc(values, decs=2):
     return np.trunc(values*10**decs)/(10**decs)
 
 for i in range(1000):
-    num_quads = nq[i] #np.random.randint(10,20)
+    num_quads = np.random.randint(10,20)
     collision_range = np.random.random() * 100
     max_vel = 5.0
     outfile = 'data/run'+str(i)+'quads'+str(num_quads)+'cr'+str(trunc(collision_range))+'.json'
