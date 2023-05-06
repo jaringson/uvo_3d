@@ -83,7 +83,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
     # dataPlot = dataPlotter()
     # plt.waitforbuttonpress()
 
-    pbar = tqdm(total = (P.sim_t - P.t_start)/P.dt)
+    # pbar = tqdm(total = (P.sim_t - P.t_start)/P.dt)
 
     t = P.t_start  # time starts at t_start
     t_control = t
@@ -97,7 +97,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
         t_next_cvo = t + P.cvo_dt
 
 
-        p = Pool()
+        p = Pool(100)
         allVelCon = p.map(multi_cvo, range(num_quads))
         p.close()
 
@@ -119,7 +119,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
                 y = allQuads[id].update(u)  # propagate system
                 allStates[id].append(allQuads[id].state.flatten().tolist())
 
-            pbar.update(1)
+            # pbar.update(1)
             t = t + P.dt  # advance time by dt
         # update data plots
         # dataPlot.update(t, allQuads[0].state, u)
@@ -128,7 +128,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
         plt.pause(0.0001)
 
 
-    pbar.close()
+    # pbar.close()
 
     out_file = open(filename, "w")
     json.dump(allStates, out_file, indent=3)

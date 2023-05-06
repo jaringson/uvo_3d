@@ -85,8 +85,8 @@ class CVOManager:
                 inRangeVel.append(xhat[3:6])
 
                 if self.addUncertainty_:
-                    uncertPos.append( [P_mat[0,0]**0.5, P_mat[1,1]**0.5, P_mat[2,2]**0.5] )
-                    uncertVel.append( [P_mat[3,3]**0.5, P_mat[4,4]**0.5, P_mat[5,5]**0.5] )
+                    uncertPos.append( [2.0*P_mat[0,0]**0.5, 2.0*P_mat[1,1]**0.5, 2.0*P_mat[2,2]**0.5] )
+                    uncertVel.append( [2.0*P_mat[3,3]**0.5, 2.0*P_mat[4,4]**0.5, 2.0*P_mat[5,5]**0.5] )
 
                 else:
                     uncertPos.append( [0,0,0] )
