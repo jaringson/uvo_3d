@@ -49,8 +49,14 @@ class CVOManager:
 
             if self.add_kalman_:
 
+                # print('cond1: ', quadKey not in self.allKalFilters)
+                # print('cond2: ', norm(av2Pos - av1Pos) > self.cvoGekko.collisionRange)
+                # print('together: ', quadKey not in self.allKalFilters and \
+                # norm(av2Pos - av1Pos) > self.cvoGekko.collisionRange)
+
                 if quadKey not in self.allKalFilters and \
                         norm(av2Pos - av1Pos) > self.cvoGekko.collisionRange:
+                    # print('here: ', self.id)
                     continue
 
                 if quadKey not in self.allKalFilters and \
@@ -60,12 +66,15 @@ class CVOManager:
 
                     self.allKalFilters[quadKey] = GenKalmanFilter(self.params, self.id, quadKey, inXHat)
 
-                elif norm(av2Pos - av1Pos) > self.cvoGekko.collisionRange:
+                elif quadKey in self.allKalFilters and \
+                    norm(av2Pos - av1Pos) > self.cvoGekko.collisionRange:
                     del self.allKalFilters[quadKey]
+                    continue
+
 
                 elif np.random.random() < self.drop_prob_:
-                        inX = np.block([[av2Pos], [av2Vel]])
-                        self.allKalFilters[quadKey].update(inX)
+                    inX = np.block([[av2Pos], [av2Vel]])
+                    self.allKalFilters[quadKey].update(inX)
 
                 xhat = self.allKalFilters[quadKey].xhat_
                 P_mat = self.allKalFilters[quadKey].P_

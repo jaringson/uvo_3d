@@ -8,14 +8,14 @@ from animation import Animation
 
 data = []
 
-with open("data/run0.json", "r") as read_it:
+with open("data/myfile.json", "r") as read_it:
     data = json.load(read_it)
 
 # set_trace()
 numVehicles = len(data.keys())
 animation = Animation(numVehicles)
 
-jump = 40
+jump = 60
 
 for i in range(len(data['0'])//jump):
     # print(i*jump)

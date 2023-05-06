@@ -45,7 +45,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
 
     num_quads = num_quads
     radius = P.start_radius
-    seed = 0 #int(time.time())
+    seed = int(time.time())
 
     waypoints, allStartPositions = get_waypoints(radius, num_quads, P.collision_radius, seed=seed)
     print('waypoints: ', waypoints)
@@ -99,7 +99,6 @@ def run_sim(num_quads, collision_range, max_vel, filename):
 
         p = Pool()
         allVelCon = p.map(multi_cvo, range(num_quads))
-
         p.close()
 
 
@@ -109,6 +108,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
         #     vel_c = allCVOManagers[id].get_best_vel(allQuads, t, vel_d)
         #     allVelCon[id] = vel_c #np.array([[-10],[0],[0]])
 
+        # set_trace()
         # updates control and dynamics at faster simulation rate
         while t < t_next_cvo:
 

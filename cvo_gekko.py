@@ -19,9 +19,11 @@ class CVOGekko:
 
         self.max_vel = params.max_vel
 
+        self.slackGamma = params.slack_gamme
+
     def calculate_buffer(self, host_pos, invader_pos):
 
-        buffer_radius = 1.5*self.collisionRadius
+        buffer_radius = 1.1*self.collisionRadius
         power = self.bufferPower
 
         num_invaders = len(invader_pos)
@@ -85,6 +87,7 @@ class CVOGekko:
         # allTimeToCollisionWeights = []
 
         allContraints = []
+        allDeltas = []
 
         for i in range(numOther):
             av2Xo = inRangePos[i]
@@ -95,7 +98,7 @@ class CVOGekko:
             apexOfCollisionCone = (1.0-self.alpha)*av1Vo + self.alpha*av2Vo
             centerOfEllipsoid = from1XTo2X + apexOfCollisionCone
 
-            ''' Adding Velocity Uncertainty '''
+            ''' Velocity Uncertainty '''
             fromCenterToApex = apexOfCollisionCone - centerOfEllipsoid
             max_vel_uncertianty = np.max(uncertaintyVel)
             apexOfCollisionCone += max_vel_uncertianty*fromCenterToApex/norm(fromCenterToApex)
@@ -104,7 +107,7 @@ class CVOGekko:
             apexOfCollisionCone4D = np.block([[apexOfCollisionCone], [1.0]])
 
 
-
+            ''' Position Uncertainty '''
             a = uncertaintyPos[i][0]+2.0*self.collisionRadius
             b = uncertaintyPos[i][1]+2.0*self.collisionRadius
             c = uncertaintyPos[i][2]+2.0*self.collisionRadius
@@ -146,17 +149,38 @@ class CVOGekko:
 
             constraint = m.Intermediate((val.T@M@val)[0,0])
             allContraints.append(constraint)
-            m.Equation( constraint >= 0  )
+            delta = m.Var()
+            allDeltas.append(delta)
+
+            y1 = 1e3
+            y2 = 1e2
+            x1 = self.collisionRadius
+            x2 = self.collisionRange
+            m_line = (y2-y1)/(x2-x1)
+            b_line = y1-m_line*x1
+            weight = m_line*norm(from1XTo2X)+b_line
+            # weight = 1e6*self.collisionRange*1.0/(norm(from1XTo2X)+self.collisionRadius-0.1)
+
+            m.Equation( constraint + delta >= 0  )
+            m.Obj(delta * delta * weight)
+
+        # allDeltas = np.array(allDeltas)
+        # allDistanceWeights = np.diag(allDistanceWeights)
+        # deltas_cost = m.Intermediate(allDeltas.T @ allDistanceWeights @ allDeltas)
 
         normConstraint = m.Intermediate(m.sqrt(sx**2 + sy**2 + sz**2))
         allContraints.append(normConstraint)
+
         m.Equation( normConstraint <= self.max_vel )
-        m.Minimize( (sx-vdx)**2 + (sy-vdy)**2 + (sz-vdz)**2 )
+        m.Minimize( (sx-vdx)**2 + (sy-vdy)**2 + (sz-vdz)**2)
         m.options.SOLVER = 3 # IPOPT solver
         # m.options.MAX_ITER = 100
         # t1 = time.time()
         solve_success = False
-        for i in range(10):
+        for i in range(100):
+            # if i > 50:
+            #     print(i, self.id)
+            #     # set_trace()
             try:
                 # print('try: ', self.id, " iter: ", i)
                 debug_val = m.solve(disp=False, debug=True)
@@ -165,6 +189,8 @@ class CVOGekko:
             except:
 
                 # set_trace()
+
+                # print('Try again. id: ', self.id)
                 n = norm(av1VelDes)
                 sx.value = [2*(0.5-random())*n]
                 sy.value = [2*(0.5-random())*n]
@@ -182,7 +208,7 @@ class CVOGekko:
             # for c in allContraints:
             #     print("c value :", c.value)
             # print("s :", sx.value[0], sy.value[0], sz.value[0])
-            print('id: ', self.id)
+            print('Failed. id: ', self.id)
             # set_trace()
 
 

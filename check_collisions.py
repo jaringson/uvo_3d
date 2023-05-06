@@ -34,6 +34,8 @@ def check_collision(ij):
     num_collisions = np.sum(allNorms < params.collision_radius)
 
     if num_collisions > 0:
+        print(i,j)
+        print(allNorms[allNorms < params.collision_radius])
         return 1
     return 0
 

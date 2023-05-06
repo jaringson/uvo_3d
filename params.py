@@ -3,18 +3,20 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t = 75
+sim_t = 100
 # t_plot = 1.0
 
-cvo_dt = 1.0
+cvo_dt = 0.5
 
-num_quads = 20
+num_quads = 40
 
 outfile_name = 'outfile.json'
 
 ''' CVO '''
+slack_gamme = 10
+
 collision_radius = 10
-buffer_power = 10
+buffer_power = 50
 buffer_on = True
 collision_range = 100
 start_radius = 100
