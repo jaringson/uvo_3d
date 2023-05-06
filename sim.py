@@ -48,7 +48,8 @@ def run_sim(num_quads, collision_range, max_vel, filename):
     seed = int(time.time())
 
     waypoints, allStartPositions = get_waypoints(radius, num_quads, P.collision_radius, seed=seed)
-    print('waypoints: ', waypoints)
+    # print('waypoints: ', waypoints)
+    print('Num of Vehicles: ', num_quads)
 
     # waypoints =[[0,0,0,0,0,0,-10,0]]
     # allStartPositions= [np.array([[0],[0],[0]])]
