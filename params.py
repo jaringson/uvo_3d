@@ -3,7 +3,7 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t = 75
+sim_t = 100
 # t_plot = 1.0
 
 cvo_dt = 1.0
