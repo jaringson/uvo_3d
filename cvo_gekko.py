@@ -152,8 +152,8 @@ class CVOGekko:
             delta = m.Var()
             allDeltas.append(delta)
 
-            y1 = 1e3
-            y2 = 1e2
+            y1 = m.Param(1e3)
+            y2 = m.Param(1e2)
             x1 = self.collisionRadius
             x2 = self.collisionRange
             m_line = (y2-y1)/(x2-x1)
@@ -196,6 +196,8 @@ class CVOGekko:
                 sy.value = [2*(0.5-random())*n]
                 sz.value = [2*(0.5-random())*n]
 
+                y1.value /= 2.0
+                y2.value /= 2.0
 
                 solve_success = False
 
