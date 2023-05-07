@@ -78,6 +78,9 @@ class CVOGekko:
 
         s = np.array([[sx],[sy],[sz], [0.0]])
 
+        y1 = m.Param(1e3)
+        y2 = m.Param(1e2)
+
         debug_val = 0
 
 
@@ -152,8 +155,6 @@ class CVOGekko:
             delta = m.Var()
             allDeltas.append(delta)
 
-            y1 = m.Param(1e3)
-            y2 = m.Param(1e2)
             x1 = self.collisionRadius
             x2 = self.collisionRange
             m_line = (y2-y1)/(x2-x1)
