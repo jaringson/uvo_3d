@@ -6,7 +6,7 @@ dt = 0.01
 sim_t = 100
 # t_plot = 1.0
 
-cvo_dt = 0.5
+cvo_dt = 0.1
 
 num_quads = 40
 
