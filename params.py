@@ -3,12 +3,12 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t = 100
+sim_t = 10
 # t_plot = 1.0
 
-cvo_dt = 0.5
+cvo_dt = 0.1
 
-num_quads = 40
+num_quads = 3
 
 outfile_name = 'outfile.json'
 
@@ -18,7 +18,7 @@ slack_gamme = 10
 collision_radius = 10
 buffer_power = 50
 buffer_on = True
-collision_range = 100
+collision_range = 250
 start_radius = 100
 
 add_kalman = True
@@ -32,11 +32,11 @@ gps_vel_stdev = 1.0
 ''' Gen Kalman Filter '''
 sigmaQ_vel = 3
 alphaQ_vel = 0.5
-sigmaQ_jrk = 0.0075
+sigmaQ_jrk = 0.2 #0075
 alphaQ_jrk = 0.5
 
-sigmaR_pos = 1.0
-sigmaR_vel = 0.1
+sigmaR_pos = 3.0
+sigmaR_vel = 1.0
 
 ''' Control '''
 tau = 0.05

@@ -2,9 +2,10 @@ import numpy as np
 from numpy.linalg import inv
 
 from IPython.core.debugger import set_trace
+import params
 
 class GenKalmanFilter:
-    def __init__(self, params, owner_id, id, x):
+    def __init__(self, owner_id, id, x):
 
         self.sigmaQ_vel_ = params.sigmaQ_vel
         self.alphaQ_vel_ = params.alphaQ_vel
@@ -68,10 +69,10 @@ class GenKalmanFilter:
 
     def build_A(self):
         A = np.zeros((self.n_, self.n_))
-        for i in range(self.n_-1):
+        for i in range(self.n_):
             A[i,i] = 1
             for j in range(1,int(self.n_/3)):
-                if i+(j*3) < (self.n_-1):
+                if i+(j*3) < (self.n_):
                     A[i, i+(j*3)] = self.dt_**j / j
 
         return A
@@ -93,7 +94,7 @@ class GenKalmanFilter:
             [0, 0, self.dt_**4/24, 0, 0, self.dt_**3/6, 0, 0, self.dt_**2/2, 0, 0, self.dt_**1/1]
             ])
 
-        Q = 2 * self.alphaQ_jrk_ * self.sigmaQ_jrk_**2 * Q;
+        Q = 2.0 * self.alphaQ_jrk_ * self.sigmaQ_jrk_**2 * Q;
 
         return Q
 

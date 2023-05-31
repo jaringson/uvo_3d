@@ -37,7 +37,7 @@ def check_collision(ij):
     return 0
 
 
-mypath = 'superData/sigData/'
+mypath = 'superData/dynData1/'
 f = []
 for (dirpath, dirnames, filenames) in walk(mypath):
     # print(dirpath, dirnames, filenames)
@@ -96,6 +96,6 @@ outData['numVehicles'] = allNumVehicles
 outData['collisionsPerVel'] = allCollisionsPerVel
 outData['collisionRange'] = allCollisionRange
 outData['velocity'] = allVelocities
-outFile = open('superData/sigDataProcessed.json', "w")
+outFile = open('superData/dynDataProcessed.json', "w")
 json.dump(outData, outFile, indent=3)
 outFile.close()
