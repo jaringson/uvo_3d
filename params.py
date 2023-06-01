@@ -3,7 +3,7 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t = 10
+sim_t = 100
 # t_plot = 1.0
 
 cvo_dt = 0.1
@@ -13,8 +13,6 @@ num_quads = 3
 outfile_name = 'outfile.json'
 
 ''' CVO '''
-slack_gamme = 10
-
 collision_radius = 10
 buffer_power = 50
 buffer_on = True

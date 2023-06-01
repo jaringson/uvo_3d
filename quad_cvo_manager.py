@@ -27,10 +27,11 @@ class CVOManager:
     def get_kal_data(self, allKalStates):
         # print('get data ', self.id, " ", self.allKalFilters)
         # set_trace()
-        for quadKey in self.allKalFilters:
-            if quadKey not in allKalStates:
-                allKalStates[quadKey] = []
-            allKalStates[quadKey].append(self.allKalFilters[quadKey].xhat_.flatten().tolist())
+        # for quadKey in self.allKalFilters:
+        # print(self.allKalFilters[1].P_)
+        if 1 not in allKalStates:
+            allKalStates[1] = []
+        allKalStates[1].append(self.allKalFilters[1].xhat_.flatten().tolist())
 
     def propagate(self):
         for quadKey in self.allKalFilters:
@@ -52,8 +53,8 @@ class CVOManager:
 
 
 
-            av2Pos = allQuads[quadKey].x_ # + rndnorm(0, self.gps_pos_stdev, size=(3,1))
-            av2Vel = rota(allQuads[quadKey].q_, allQuads[quadKey].v_) #+ rndnorm(0, self.gps_vel_stdev, size=(3,1))
+            av2Pos = allQuads[quadKey].x_  + rndnorm(0, self.gps_pos_stdev, size=(3,1))
+            av2Vel = rota(allQuads[quadKey].q_, allQuads[quadKey].v_) + rndnorm(0, self.gps_vel_stdev, size=(3,1))
 
             if self.add_kalman_:
 
@@ -72,7 +73,7 @@ class CVOManager:
                 if quadKey not in self.allKalFilters and \
                         norm(av2Pos - av1Pos) < self.cvoGekko.collisionRange:
 
-                    inXHat = np.block([[av2Pos], [av2Vel], [np.zeros((6,1))]])
+                    inXHat = np.block([[allQuads[quadKey].x_], [rota(allQuads[quadKey].q_, allQuads[quadKey].v_)], [np.zeros((6,1))]])
 
                     self.allKalFilters[quadKey] = GenKalmanFilter(self.id, quadKey, inXHat)
 

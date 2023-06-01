@@ -19,8 +19,6 @@ class CVOGekko:
 
         self.max_vel = params.max_vel
 
-        self.slackGamma = params.slack_gamme
-
     def calculate_buffer(self, host_pos, invader_pos):
 
         buffer_radius = 1.1*self.collisionRadius
