@@ -78,8 +78,8 @@ class CVOGekko:
 
         s = np.array([[sx],[sy],[sz], [0.0]])
 
-        y1 = m.Param(1e4)
-        y2 = m.Param(2)
+        y1 = m.Param(10)
+        y2 = m.Param(1e-1)
 
         debug_val = 0
 
@@ -194,13 +194,13 @@ class CVOGekko:
                 # set_trace()
 
                 # print('Try again. id: ', self.id)
-                n = norm(av1VelDes)
-                sx.value = [2*(0.5-random())*n]
-                sy.value = [2*(0.5-random())*n]
-                sz.value = [2*(0.5-random())*n]
+                n = self.max_vel #norm(av1VelDes)
+                sx.value = [np.random.uniform(-1,1)*n]
+                sy.value = [np.random.uniform(-1,1)*n]
+                sz.value = [np.random.uniform(-1,1)*n]
 
-                y1.value /= 1.0
-                y2.value /= 1.0
+                y1.value /= 1.1
+                y2.value /= 1.1
 
                 solve_success = False
                 # print('Try again. id: ', self.id, " y1: ", y1.value, " y2: ", y2.value)
