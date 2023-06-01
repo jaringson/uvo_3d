@@ -18,7 +18,7 @@ from tqdm import tqdm
 from IPython.core.debugger import set_trace
 
 from multiprocessing import Pool
-from multiprocessing import shared_memory
+#from multiprocessing import shared_memory
 
 def init_pool(allWPManagers, allCVOManagers, allQuads, t):
     global allWP
