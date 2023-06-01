@@ -199,8 +199,8 @@ class CVOGekko:
                 sy.value = [np.random.uniform(-1,1)*n]
                 sz.value = [np.random.uniform(-1,1)*n]
 
-                y1.value /= 1.1
-                y2.value /= 1.1
+                y1.value /= 1.2
+                y2.value /= 1.2
 
                 solve_success = False
                 # print('Try again. id: ', self.id, " y1: ", y1.value, " y2: ", y2.value)

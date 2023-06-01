@@ -18,7 +18,7 @@ from tqdm import tqdm
 from IPython.core.debugger import set_trace
 
 from multiprocessing import Pool
-from multiprocessing import shared_memory
+#from multiprocessing import shared_memory
 
 def init_pool(allWPManagers, allCVOManagers, allQuads, t):
     global allWP
@@ -137,7 +137,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
                 u = allControllers[id].computeControl(allQuads[id].state, P.dt, allVelCon[id])
                 y = allQuads[id].update(u)  # propagate system
                 allStates[id].append(allQuads[id].state.flatten().tolist())
-            allCVOManagers[0].get_kal_data(allKalStates)
+            #allCVOManagers[0].get_kal_data(allKalStates)
 
             # pbar.update(1)
             t = t + P.dt  # advance time by dt
@@ -154,9 +154,9 @@ def run_sim(num_quads, collision_range, max_vel, filename):
     json.dump(allStates, out_file, indent=3)
     out_file.close()
 
-    out_file2 = open('data/kaldata.json', "w")
-    json.dump(allKalStates, out_file2, indent=3)
-    out_file2.close()
+    #out_file2 = open('data/kaldata.json', "w")
+    #json.dump(allKalStates, out_file2, indent=3)
+    #out_file2.close()
 
     # Keeps the program from closing until the user presses a button.
     # print('Press key to close')

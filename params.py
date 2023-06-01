@@ -3,10 +3,10 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t = 10
+sim_t = 100
 # t_plot = 1.0
 
-cvo_dt = 0.1
+cvo_dt = 0.5
 
 num_quads = 3
 
