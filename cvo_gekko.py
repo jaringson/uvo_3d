@@ -81,7 +81,7 @@ class CVOGekko:
         s = np.array([[sx],[sy],[sz], [0.0]])
 
         y1 = m.Param(1e4)
-        y2 = m.Param(1e-1)
+        y2 = m.Param(1)
 
         debug_val = 0
 
@@ -151,20 +151,20 @@ class CVOGekko:
             constraint = m.Intermediate((val.T@M@val)[0,0])
             allContraints.append(constraint)
 
-            # delta = m.Var()
-            # allDeltas.append(delta)
-            #
-            # x1 = self.collisionRadius
-            # x2 = self.collisionRange
-            # m_line = (y2-y1)/(x2-x1)
-            # b_line = y1-m_line*x1
-            # weight = m.Intermediate(m_line*norm(from1XTo2X)+b_line)
-            # # weight = 1e6*self.collisionRange*1.0/(norm(from1XTo2X)+self.collisionRadius-0.1)
-            #
-            # m.Equation( constraint + delta >= 0  )
-            # m.Obj(delta * delta * weight)
+            delta = m.Var()
+            allDeltas.append(delta)
 
-            m.Equation( constraint >= 0  )
+            x1 = self.collisionRadius
+            x2 = self.collisionRange
+            m_line = (y2-y1)/(x2-x1)
+            b_line = y1-m_line*x1
+            weight = m.Intermediate(m_line*norm(from1XTo2X)+b_line)
+            # weight = 1e6*self.collisionRange*1.0/(norm(from1XTo2X)+self.collisionRadius-0.1)
+
+            m.Equation( constraint + delta >= 0  )
+            m.Obj(delta * delta * weight)
+
+            # m.Equation( constraint >= 0  )
 
 
         # allDeltas = np.array(allDeltas)
@@ -199,8 +199,8 @@ class CVOGekko:
                 sy.value = [np.random.uniform(-1,1)*n]
                 sz.value = [np.random.uniform(-1,1)*n]
 
-                y1.value /= 1.1
-                y2.value /= 1.1
+                y1.value /= 1.0
+                y2.value /= 1.0
 
                 solve_success = False
                 # print('Try again. id: ', self.id, " y1: ", y1.value, " y2: ", y2.value)
