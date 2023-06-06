@@ -41,7 +41,7 @@ class CVOGekko:
 
             dist_to_buffer = euc_dist - buffer_radius
 
-            if dist_to_buffer <= 0:
+            if dist_to_buffer <= 1e-3:
                 dist_to_buffer = 1e-3
 
             buffer_force = (buffer_radius/dist_to_buffer)**self.bufferPower
@@ -151,20 +151,20 @@ class CVOGekko:
             constraint = m.Intermediate((val.T@M@val)[0,0])
             allContraints.append(constraint)
 
-            delta = m.Var()
-            allDeltas.append(delta)
+            # delta = m.Var()
+            # allDeltas.append(delta)
+            #
+            # x1 = self.collisionRadius
+            # x2 = self.collisionRange
+            # m_line = (y2-y1)/(x2-x1)
+            # b_line = y1-m_line*x1
+            # weight = m.Intermediate(m_line*norm(from1XTo2X)+b_line)
+            # # weight = 1e6*self.collisionRange*1.0/(norm(from1XTo2X)+self.collisionRadius-0.1)
+            #
+            # m.Equation( constraint + delta >= 0  )
+            # m.Obj(delta * delta * weight)
 
-            x1 = self.collisionRadius
-            x2 = self.collisionRange
-            m_line = (y2-y1)/(x2-x1)
-            b_line = y1-m_line*x1
-            weight = m.Intermediate(m_line*norm(from1XTo2X)+b_line)
-            # weight = 1e6*self.collisionRange*1.0/(norm(from1XTo2X)+self.collisionRadius-0.1)
-
-            m.Equation( constraint + delta >= 0  )
-            m.Obj(delta * delta * weight)
-
-            # m.Equation( constraint >= 0  )
+            m.Equation( constraint >= 0  )
 
 
         # allDeltas = np.array(allDeltas)
