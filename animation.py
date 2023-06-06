@@ -76,7 +76,7 @@ class Animation:
 
         ax.set_title(title)
 
-        maxAxis = 80
+        maxAxis = 50
         ax.set_xlim3d([-maxAxis, maxAxis])
         ax.set_ylim3d([-maxAxis, maxAxis])
         ax.set_zlim3d([-maxAxis, maxAxis])
@@ -149,7 +149,7 @@ class Animation:
         x_pos = state[0]
         y_pos = state[1]
         z_pos = state[2]
-        radius = 10.0
+        radius = 1.0
         # print(x_pos,radius)
         u = np.linspace(0, 2 * np.pi, 50)
         v = np.linspace(0, np.pi, 50)

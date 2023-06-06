@@ -24,14 +24,16 @@ class CVOManager:
         self.gps_pos_stdev = params.gps_pos_stdev
         self.gps_vel_stdev = params.gps_vel_stdev
 
-    def get_kal_data(self, allKalStates):
+    def get_kal_data(self, allKalStates, allKalCovariance):
         # print('get data ', self.id, " ", self.allKalFilters)
-        # set_trace()
         # for quadKey in self.allKalFilters:
         # print(self.allKalFilters[1].P_)
         if 1 not in allKalStates:
             allKalStates[1] = []
+            allKalCovariance[1] = []
         allKalStates[1].append(self.allKalFilters[1].xhat_.flatten().tolist())
+
+        allKalCovariance[1].append(np.diag(self.allKalFilters[1].P_).tolist())
 
     def propagate(self):
         for quadKey in self.allKalFilters:
@@ -47,64 +49,57 @@ class CVOManager:
         uncertPos = []
         uncertVel = []
 
+        ''' Loop over all other quadrotors to get position and velocity '''
         for quadKey in allQuads:
+
+            ''' Don't include self '''
             if quadKey == self.id:
                 continue
 
-
-
-            av2Pos = allQuads[quadKey].x_  + rndnorm(0, self.gps_pos_stdev, size=(3,1))
+            ''' Add uncertainty to the data '''
+            av2Pos = allQuads[quadKey].x_ + rndnorm(0, self.gps_pos_stdev, size=(3,1))
             av2Vel = rota(allQuads[quadKey].q_, allQuads[quadKey].v_) + rndnorm(0, self.gps_vel_stdev, size=(3,1))
 
             if self.add_kalman_:
 
-                # print('cond1: ', quadKey not in self.allKalFilters)
-                # print('cond2: ', norm(av2Pos - av1Pos) > self.cvoGekko.collisionRange)
-                # print(self.cvoGekko.collisionRange)
-                # print('together: ', quadKey not in self.allKalFilters and \
-                # norm(av2Pos - av1Pos) > self.cvoGekko.collisionRange)
-
+                ''' Checks if Kalman filter is started and
+                    if other quad is in range.  '''
                 if quadKey not in self.allKalFilters and \
                         norm(av2Pos - av1Pos) > self.cvoGekko.collisionRange:
-                    # print('here: ', self.id)
                     continue
-
 
                 if quadKey not in self.allKalFilters and \
                         norm(av2Pos - av1Pos) < self.cvoGekko.collisionRange:
-
-                    inXHat = np.block([[allQuads[quadKey].x_], [rota(allQuads[quadKey].q_, allQuads[quadKey].v_)], [np.zeros((6,1))]])
-
+                    ''' Initialize Kalman filter '''
+                    inXHat = np.block([[av2Pos], [av2Vel], [np.zeros((6,1))]])
                     self.allKalFilters[quadKey] = GenKalmanFilter(self.id, quadKey, inXHat)
-
 
                 elif quadKey in self.allKalFilters and \
                     norm(av2Pos - av1Pos) > self.cvoGekko.collisionRange:
+                    ''' If the other vehicle is moved out of range delete Kalman
+                        filter associated with it '''
                     del self.allKalFilters[quadKey]
                     continue
 
-
                 elif np.random.random() < self.drop_prob_:
+                    ''' Update Kalman filter if communication isn't dropped '''
                     inX = np.block([[av2Pos], [av2Vel]])
-                    # set_trace()
                     self.allKalFilters[quadKey].update(inX)
 
                 xhat = self.allKalFilters[quadKey].xhat_
                 P_mat = self.allKalFilters[quadKey].P_
 
-                # print('x: ', xhat[0:3] - allQuads[quadKey].x_)
-
                 inRangePos.append(xhat[0:3])
                 inRangeVel.append(xhat[3:6])
 
+                ''' If/Else for uncertainty from Kalman filter '''
                 if self.addUncertainty_:
-                    uncertPos.append( [2.0*P_mat[0,0]**0.5, 2.0*P_mat[1,1]**0.5, 2.0*P_mat[2,2]**0.5] )
-                    uncertVel.append( [2.0*P_mat[3,3]**0.5, 2.0*P_mat[4,4]**0.5, 2.0*P_mat[5,5]**0.5] )
+                    uncertPos.append( [3.0*P_mat[0,0]**0.5, 3.0*P_mat[1,1]**0.5, 3.0*P_mat[2,2]**0.5] )
+                    uncertVel.append( [3.0*P_mat[3,3]**0.5, 3.0*P_mat[4,4]**0.5, 3.0*P_mat[5,5]**0.5] )
 
                 else:
                     uncertPos.append( [0,0,0] )
                     uncertVel.append( [0,0,0] )
-
 
             else:
 
@@ -114,12 +109,7 @@ class CVOManager:
                     uncertPos.append( [0,0,0] )
                     uncertVel.append( [0,0,0] )
 
-
-
-
-        # print('get best ', self.id, " ", self.allKalFilters)
-        # print(inRangeVel)
-        # set_trace()
+        ''' Run optimzation '''
         vel = self.cvoGekko.get_best_vel(av1Pos, av1Vel, vel_d,
                         inRangePos, inRangeVel,
                         uncertPos, uncertVel)
