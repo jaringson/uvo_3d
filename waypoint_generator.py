@@ -37,7 +37,7 @@ def get_waypoints(startRadius, numVehicles, vehicleRadius, seed=int(time.time())
             point = get_random_position(startRadius)
 
             for pos in allPositions:
-                if norm(pos-point) < vehicleRadius*2.5:
+                if norm(pos-point) < vehicleRadius*10.0:
                     foundOther = True
                     break
 

@@ -29,10 +29,11 @@ class WPManager:
         current_waypoint = np.reshape(current_waypoint, (4,1))
         error = current_waypoint[0:3] - position
 
-        if(norm(error) < self.waypoint_threshold_):
-            self.current_waypoint_id_ = (self.current_waypoint_id_ + 1) % self.num_waypoints_
-            # current_waypoint = self.waypoints_[current_waypoint_id_]
-            # current_waypoint = np.reshape(current_waypoint, (4,1))
+        # if(norm(error) < self.waypoint_threshold_):
+        #     # if self.current_waypoint_id_ < self.num_waypoints_
+        #     self.current_waypoint_id_ = (self.current_waypoint_id_ + 1) % self.num_waypoints_
+        #     # current_waypoint = self.waypoints_[current_waypoint_id_]
+        #     # current_waypoint = np.reshape(current_waypoint, (4,1))
 
         desiredVelocity = np.multiply(self.K_p_, error)
 

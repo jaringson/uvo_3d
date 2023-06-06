@@ -19,9 +19,8 @@ class CVOGekko:
 
         self.max_vel = params.max_vel
 
-    def calculate_buffer(self, host_pos, invader_pos):
+    def calculate_buffer(self, host_pos, invader_pos, uncertaintyPos):
 
-        buffer_radius = 1.1*self.collisionRadius
         power = self.bufferPower
 
         num_invaders = len(invader_pos)
@@ -32,6 +31,8 @@ class CVOGekko:
 
         for i in range(num_invaders):
 
+            max_uncert = np.max(uncertaintyPos[i])
+            buffer_radius = max_uncert
 
             host = host_pos
             invader = invader_pos[i]
@@ -39,6 +40,9 @@ class CVOGekko:
             euc_dist = norm(diff)
 
             dist_to_buffer = euc_dist - buffer_radius
+
+            if dist_to_buffer <= 0:
+                dist_to_buffer = 1e-3
 
             buffer_force = (buffer_radius/dist_to_buffer)**self.bufferPower
             buffer_velocity = abs(buffer_force) * (-diff)/norm(diff)
@@ -59,7 +63,7 @@ class CVOGekko:
 
         av1BuffVel = np.zeros((3,1))
         if self.bufferOn:
-            av1BuffVel = self.calculate_buffer(av1Xo, inRangePos)
+            av1BuffVel = self.calculate_buffer(av1Xo, inRangePos, uncertaintyPos)
             av1BuffVel = av1BuffVel / (0.5*norm(av1VelDes))
 
         av1VelDes = (2.0*av1VelDes + av1BuffVel)/2.0;
@@ -76,7 +80,7 @@ class CVOGekko:
 
         s = np.array([[sx],[sy],[sz], [0.0]])
 
-        y1 = m.Param(10)
+        y1 = m.Param(1e4)
         y2 = m.Param(1e-1)
 
         debug_val = 0
@@ -128,10 +132,6 @@ class CVOGekko:
 
 
             ap = apexOfCollisionCone4D
-            # print(M)
-            # print(ap)
-            # print(s)
-            # print(vdx,vdy,vdz)
 
             new_s = np.array([[sx-ap[0,0]],[sy-ap[1,0]],[sz-ap[2,0]], [0.0]])
 
@@ -150,7 +150,8 @@ class CVOGekko:
 
             constraint = m.Intermediate((val.T@M@val)[0,0])
             allContraints.append(constraint)
-            delta = m.Var(lb=0)
+
+            delta = m.Var()
             allDeltas.append(delta)
 
             x1 = self.collisionRadius
@@ -161,9 +162,10 @@ class CVOGekko:
             # weight = 1e6*self.collisionRange*1.0/(norm(from1XTo2X)+self.collisionRadius-0.1)
 
             m.Equation( constraint + delta >= 0  )
-            #m.Equation( constraint + delta >= 0  )
+            m.Obj(delta * delta * weight)
 
-            m.Obj(delta * weight)
+            # m.Equation( constraint >= 0  )
+
 
         # allDeltas = np.array(allDeltas)
         # allDistanceWeights = np.diag(allDistanceWeights)
@@ -197,8 +199,8 @@ class CVOGekko:
                 sy.value = [np.random.uniform(-1,1)*n]
                 sz.value = [np.random.uniform(-1,1)*n]
 
-                y1.value /= 1.2
-                y2.value /= 1.2
+                y1.value /= 1.1
+                y2.value /= 1.1
 
                 solve_success = False
                 # print('Try again. id: ', self.id, " y1: ", y1.value, " y2: ", y2.value)

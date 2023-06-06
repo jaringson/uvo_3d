@@ -11,7 +11,7 @@ from multiprocessing import Pool
 
 data = []
 
-with open("superData/dynData1/run14quads20cr99.72mv5.22.json", "r") as read_it:
+with open("data/data.json", "r") as read_it:
     data = json.load(read_it)
 
 numVehicles = len(data.keys())
