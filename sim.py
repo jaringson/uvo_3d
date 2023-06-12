@@ -6,11 +6,16 @@ from utils import roll, pitch, yaw
 
 import params as P
 from quadrotor import QuadDynamics
+if P.is_2d:
+    from quad_cvo_manager_2d import CVOManager
+    from waypoint_generator_2d import get_waypoints
+else:
+    from quad_cvo_manager import CVOManager
+    from waypoint_generator import get_waypoints
+
 from dataPlotter import dataPlotter
 from quad_control import Controller
-from quad_cvo_manager import CVOManager
 from quad_wp_manager import WPManager
-from waypoint_generator import get_waypoints
 
 import json
 import time
