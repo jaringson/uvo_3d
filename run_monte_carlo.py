@@ -1,7 +1,9 @@
 import sim
+import params
 
 import numpy as np
 from importlib import reload
+
 
 from IPython.core.debugger import set_trace
 
@@ -14,7 +16,9 @@ def trunc(values, decs=2):
 #def run_monte_carlo(start, end=1000):
 
 for i in range(0, 1000):
-	num_quads = np.random.randint(10,40)
+    num_quads = np.random.randint(10,40)
+    if params.is_2d:
+        num_quads = np.random.randint(10,20)
 	collision_range = np.random.random() * 100
 	max_vel = 5.0 + np.random.random() * 5.0
 	outfile = 'dynData10/run'+str(i)+'quads'+str(num_quads)+'cr'+str(trunc(collision_range))+'mv'+str(trunc(max_vel))+'.json'

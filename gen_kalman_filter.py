@@ -38,10 +38,10 @@ class GenKalmanFilter:
         self.C_vel_ = self.build_C(6, self.n_)
         self.R_pos_ = self.build_R(3)
         self.R_vel_ = self.build_R(6)
-        self.P_ = np.eye(self.n_)
-        self.P_[0,0] = 4
-        self.P_[1,1] = 4
-        self.P_[2,2] = 4
+        self.P_ = np.eye(self.n_)*0.1
+        self.P_[0,0] = 1
+        self.P_[1,1] = 1
+        self.P_[2,2] = 1
 
     def predict(self):
         self.xhat_ = self.A_ @ self.xhat_
