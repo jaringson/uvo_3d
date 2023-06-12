@@ -81,7 +81,7 @@ class CVOGekko:
         s = np.array([[sx],[sy],[sz], [0.0]])
 
         y1 = m.Param(1e4)
-        y2 = m.Param(1)
+        y2 = m.Param(1e1)
 
         debug_val = 0
 
@@ -133,13 +133,13 @@ class CVOGekko:
 
             ap = apexOfCollisionCone4D
 
-            new_s = np.array([[sx-ap[0,0]],[sy-ap[1,0]],[sz-ap[2,0]], [0.0]])
+            new_s = np.array([[sx-ap[0,0]],[sy-ap[1,0]],[sz-ap[2,0]], [1.0]])
 
 
             lam1 = m.Intermediate((-new_s.T@M@ap)[0,0])
             lam2 = m.Intermediate((new_s.T@M@new_s)[0,0])
-            lam = m.Intermediate(m.sqrt( lam1*lam1/(lam2*lam2) ))
-            # lam = self.m.Intermediate(self.m.abs2(lam1/lam2))
+            # lam = m.Intermediate(m.sqrt( lam1*lam1/(lam2*lam2) ))
+            lam = m.Intermediate(m.abs2(lam1/lam2))
 
             valx = ap[0,0]+lam*(sx-ap[0,0])
             valy = ap[1,0]+lam*(sy-ap[1,0])
