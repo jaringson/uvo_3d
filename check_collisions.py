@@ -12,6 +12,7 @@ from multiprocessing import Pool
 data = []
 
 with open("data/data.json", "r") as read_it:
+# with open("superData/dynData6/run5quads17cr87.58mv5.88.json", "r") as read_it:
     data = json.load(read_it)
 
 numVehicles = len(data.keys())
@@ -36,6 +37,8 @@ def check_collision(ij):
     if num_collisions > 0:
         print(i,j)
         print(allNorms[allNorms < params.collision_radius])
+        # print(norm(np.array(data[str(i)])[:,3:6], axis=1)[allNorms < params.collision_radius])
+        # print(norm(np.array(data[str(j)])[:,3:6], axis=1)[allNorms < params.collision_radius])
         return 1
     return 0
 

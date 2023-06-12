@@ -37,7 +37,7 @@ def check_collision(ij):
     return 0
 
 
-mypath = 'superData/dynData1/'
+mypath = 'superData/dynData9/'
 f = []
 for (dirpath, dirnames, filenames) in walk(mypath):
     # print(dirpath, dirnames, filenames)
@@ -78,6 +78,8 @@ for file in f:
     p.close()
 
     # print('# Collisions/vehicle: ', np.sum(collisions)/numVehicles)
+    if np.sum(collisions) > 0:
+        print(mypath+file)
     allCollisionsPerVel.append(np.sum(collisions)/numVehicles)
     allCollisionRange.append(collisionRange)
     allNumVehicles.append(numVehicles)

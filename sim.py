@@ -87,7 +87,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
     # dataPlot = dataPlotter()
     # plt.waitforbuttonpress()
 
-    pbar = tqdm(total = (P.sim_t - P.t_start)/P.dt)
+    #pbar = tqdm(total = (P.sim_t - P.t_start)/P.dt)
 
     t = P.t_start  # time starts at t_start
     t_control = t
@@ -137,9 +137,9 @@ def run_sim(num_quads, collision_range, max_vel, filename):
                 y = allQuads[id].update(u)  # propagate system
                 allStates[id].append(allQuads[id].state.flatten().tolist())
 
-            allCVOManagers[0].get_kal_data(allKalStates, allKalCovariance)
+            #allCVOManagers[0].get_kal_data(allKalStates, allKalCovariance)
 
-            pbar.update(1)
+            #pbar.update(1)
             t = t + P.dt  # advance time by dt
         # update data plots
         # dataPlot.update(t, allQuads[0].state, u)
@@ -148,19 +148,19 @@ def run_sim(num_quads, collision_range, max_vel, filename):
         plt.pause(0.0001)
 
 
-    pbar.close()
+    #pbar.close()
 
     out_file = open(filename, "w")
     json.dump(allStates, out_file, indent=3)
     out_file.close()
 
-    out_file2 = open('data/kaldata.json', "w")
-    json.dump(allKalStates, out_file2, indent=3)
-    out_file2.close()
+    #out_file2 = open('data/kaldata.json', "w")
+    #json.dump(allKalStates, out_file2, indent=3)
+    #out_file2.close()
 
-    out_file3 = open('data/kalcov.json', "w")
-    json.dump(allKalCovariance, out_file3, indent=3)
-    out_file3.close()
+    #out_file3 = open('data/kalcov.json', "w")
+    #json.dump(allKalCovariance, out_file3, indent=3)
+    #out_file3.close()
 
 
 if __name__ == "__main__":
