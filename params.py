@@ -22,7 +22,7 @@ start_radius = 50
 
 add_kalman = True
 add_uncertianty = True
-drop_prob = 0.8
+drop_prob = 0.5
 
 gps_pos_stdev = 3.0
 gps_vel_stdev = 1.0
@@ -34,8 +34,8 @@ alphaQ_vel = 0.5
 sigmaQ_jrk = 0.2 #0075
 alphaQ_jrk = 0.5
 
-sigmaR_pos = 6.0
-sigmaR_vel = 2.0
+sigmaR_pos = 3.0
+sigmaR_vel = 1.0
 
 ''' Control '''
 tau = 0.05
