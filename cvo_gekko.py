@@ -81,7 +81,7 @@ class CVOGekko:
         s = np.array([[sx],[sy],[sz], [0.0]])
 
         y1 = m.Param(1e4)
-        y2 = m.Param(1)
+        y2 = m.Param(1e1)
 
         debug_val = 0
 
@@ -105,7 +105,7 @@ class CVOGekko:
 
             ''' Velocity Uncertainty '''
             fromCenterToApex = apexOfCollisionCone - centerOfEllipsoid
-            max_vel_uncertianty = np.max(uncertaintyVel)
+            max_vel_uncertianty = np.max(uncertaintyVel[i])
             apexOfCollisionCone += max_vel_uncertianty*fromCenterToApex/norm(fromCenterToApex)
 
             # print('apex: ', apexOfCollisionCone)
@@ -138,8 +138,8 @@ class CVOGekko:
 
             lam1 = m.Intermediate((-new_s.T@M@ap)[0,0])
             lam2 = m.Intermediate((new_s.T@M@new_s)[0,0])
-            lam = m.Intermediate(m.sqrt( lam1*lam1/(lam2*lam2) ))
-            # lam = self.m.Intermediate(self.m.abs2(lam1/lam2))
+            #lam = m.Intermediate(m.sqrt( lam1*lam1/(lam2*lam2) ))
+            lam = m.Intermediate(m.abs2(lam1/lam2))
 
             valx = ap[0,0]+lam*(sx-ap[0,0])
             valy = ap[1,0]+lam*(sy-ap[1,0])
@@ -151,20 +151,20 @@ class CVOGekko:
             constraint = m.Intermediate((val.T@M@val)[0,0])
             allContraints.append(constraint)
 
-            delta = m.Var()
-            allDeltas.append(delta)
-
-            x1 = self.collisionRadius
-            x2 = self.collisionRange
-            m_line = (y2-y1)/(x2-x1)
-            b_line = y1-m_line*x1
-            weight = m.Intermediate(m_line*norm(from1XTo2X)+b_line)
+            #delta = m.Var()
+            #allDeltas.append(delta)
+            #
+            #x1 = self.collisionRadius
+            #x2 = self.collisionRange
+            #m_line = (y2-y1)/(x2-x1)
+            #b_line = y1-m_line*x1
+            #weight = m.Intermediate(m_line*norm(from1XTo2X)+b_line)
             # weight = 1e6*self.collisionRange*1.0/(norm(from1XTo2X)+self.collisionRadius-0.1)
+            
+            #m.Equation( constraint + delta >= 0  )
+            #m.Obj(delta * delta * weight)
 
-            m.Equation( constraint + delta >= 0  )
-            m.Obj(delta * delta * weight)
-
-            # m.Equation( constraint >= 0  )
+            m.Equation( constraint >= 0  )
 
 
         # allDeltas = np.array(allDeltas)

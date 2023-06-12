@@ -21,10 +21,10 @@ start_radius = 50
 
 add_kalman = True
 add_uncertianty = True
-drop_prob = 0.5
+drop_prob = 0.8
 
-gps_pos_stdev = 3.0
-gps_vel_stdev = 1.0
+gps_pos_stdev = 1.5
+gps_vel_stdev = 0.5
 
 
 ''' Gen Kalman Filter '''
