@@ -3,7 +3,7 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t = 50
+sim_t = 30
 # t_plot = 1.0
 is_2d = False
 

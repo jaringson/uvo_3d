@@ -70,9 +70,9 @@ class GenKalmanFilter:
         A = np.zeros((self.n_, self.n_))
         for i in range(self.n_):
             A[i,i] = 1
-            for j in range(1,int(self.n_/3)):
-                if i+(j*3) < (self.n_):
-                    A[i, i+(j*3)] = self.dt_**j / j
+            for j in range(1,int(self.n_/2)):
+                if i+(j*2) < (self.n_):
+                    A[i, i+(j*2)] = self.dt_**j / j
 
         return A
 
