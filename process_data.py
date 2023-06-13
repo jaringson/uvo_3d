@@ -37,7 +37,8 @@ def check_collision(ij):
     return 0
 
 
-mypath = 'superData/dynData9/'
+mypath = 'superData/hardData1/'
+# mypath = 'superData/2dData1/'
 f = []
 for (dirpath, dirnames, filenames) in walk(mypath):
     # print(dirpath, dirnames, filenames)
