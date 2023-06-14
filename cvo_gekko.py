@@ -133,7 +133,7 @@ class CVOGekko:
 
             ap = apexOfCollisionCone4D
 
-            new_s = np.array([[sx-ap[0,0]],[sy-ap[1,0]],[sz-ap[2,0]], [1.0]])
+            new_s = np.array([[sx-ap[0,0]],[sy-ap[1,0]],[sz-ap[2,0]], [0.0]])
 
 
             lam1 = m.Intermediate((-new_s.T@M@ap)[0,0])
