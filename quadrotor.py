@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.linalg import inv
+from numpy.linalg import inv, norm
 from utils import rota, rotp, boxplus
 
 import copy
@@ -21,7 +21,8 @@ class QuadDynamics:
         self.inertia_inv_ = inv(self.inertia_matrix_)
 
         self.x_ = x0
-        self.v_ = params.v0
+        dir = -x0 / norm(x0)
+        self.v_ = dir * np.random.uniform(0,params.max_vel/2)
         self.q_ = params.q0
         self.omega_ = params.omega0
 

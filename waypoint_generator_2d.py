@@ -10,9 +10,9 @@ def get_random_position(startRadius):
     randTheta = np.random.random() * (max-min) + min
     randPhi = np.pi #np.random.random() * (max-min) + min
 
-    x = startRadius*np.cos(randPhi)*np.cos(randTheta)
-    y = startRadius*np.cos(randPhi)*np.sin(randTheta)
-    z = startRadius*np.sin(randPhi)
+    x = startRadius*np.random.uniform(-1,1) #np.cos(randPhi)*np.cos(randTheta)
+    y = startRadius*np.random.uniform(-1,1) #np.cos(randPhi)*np.sin(randTheta)
+    z = 0.0 #np.sin(randPhi)
 
     return np.array([[x], [y], [z]]) # np.array([[-10.0], [10.0], [0.0]]) #
 
@@ -25,8 +25,12 @@ def get_waypoints(startRadius, numVehicles, vehicleRadius, seed=int(time.time())
 
     point = get_random_position(startRadius)
     allPositions.append(point)
-    point_w_psi = np.block([[-point], [0]])
-    twoPoints = np.vstack((point_w_psi, -point_w_psi)).flatten().tolist()
+    point_w_psi = np.block([[point], [0]])
+    point2 = -point #get_random_position(startRadius)
+    point2_w_psi = np.block([[point2], [0]])
+    dir = (point2_w_psi - point_w_psi)
+    dir /= norm(dir)
+    twoPoints = np.vstack((point_w_psi+10000*dir, point_w_psi)).flatten().tolist()
     allWaypoints.append(twoPoints)
 
     for i in range(numVehicles-1):
@@ -37,7 +41,7 @@ def get_waypoints(startRadius, numVehicles, vehicleRadius, seed=int(time.time())
             point = get_random_position(startRadius)
 
             for pos in allPositions:
-                if norm(pos-point) < vehicleRadius*2.1:
+                if norm(pos-point) < vehicleRadius*10.0:
                     foundOther = True
                     break
 
@@ -45,8 +49,12 @@ def get_waypoints(startRadius, numVehicles, vehicleRadius, seed=int(time.time())
 
 
         allPositions.append(point)
-        point_w_psi = np.block([[-point], [0]])
-        twoPoints = np.vstack((point_w_psi, -point_w_psi)).flatten().tolist()
+        point_w_psi = np.block([[point], [0]])
+        point2 = -point #get_random_position(startRadius)
+        point2_w_psi = np.block([[point2], [0]])
+        dir = (point2_w_psi - point_w_psi)
+        dir /= norm(dir)
+        twoPoints = np.vstack((point_w_psi+10000*dir, point_w_psi)).flatten().tolist()
         allWaypoints.append(twoPoints)
 
     return allWaypoints, allPositions

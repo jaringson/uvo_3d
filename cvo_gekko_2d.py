@@ -19,9 +19,8 @@ class CVOGekko:
 
         self.max_vel = params.max_vel
 
-    def calculate_buffer(self, host_pos, invader_pos):
+    def calculate_buffer(self, host_pos, invader_pos, uncertaintyPos):
 
-        buffer_radius = 1.1*self.collisionRadius
         power = self.bufferPower
 
         num_invaders = len(invader_pos)
@@ -32,6 +31,8 @@ class CVOGekko:
 
         for i in range(num_invaders):
 
+            max_uncert = np.max(uncertaintyPos[i])
+            buffer_radius = max_uncert
 
             host = host_pos
             invader = invader_pos[i]
@@ -39,6 +40,9 @@ class CVOGekko:
             euc_dist = norm(diff)
 
             dist_to_buffer = euc_dist - buffer_radius
+
+            if dist_to_buffer <= 1e-3:
+                dist_to_buffer = 1e-3
 
             buffer_force = (buffer_radius/dist_to_buffer)**self.bufferPower
             buffer_velocity = abs(buffer_force) * (-diff)/norm(diff)
@@ -59,7 +63,7 @@ class CVOGekko:
 
         av1BuffVel = np.zeros((2,1))
         if self.bufferOn:
-            av1BuffVel = self.calculate_buffer(av1Xo, inRangePos)
+            av1BuffVel = self.calculate_buffer(av1Xo, inRangePos, uncertaintyPos)
             av1BuffVel = av1BuffVel / (0.5*norm(av1VelDes))
 
         av1VelDes = (2.0*av1VelDes + av1BuffVel)/2.0;
@@ -69,8 +73,8 @@ class CVOGekko:
 
         m = gekko(remote=False)
 
-        sx = m.Var(2*(0.5-random()*norm(av1VelDes)), name='sx')
-        sy = m.Var(2*(0.5-random()*norm(av1VelDes)), name='sy')
+        sx = m.Var(av1VelDes[0,0], name='sx')
+        sy = m.Var(av1VelDes[1,0], name='sy')
 
         s = np.array([[sx],[sy], [0.0]])
 
