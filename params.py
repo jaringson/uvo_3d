@@ -22,10 +22,10 @@ start_radius = 50
 
 add_kalman = True
 add_uncertianty = True
-drop_prob = 0.5
+drop_prob = 0.8
 
-gps_pos_stdev = 3.0
-gps_vel_stdev = 1.0
+gps_pos_stdev = 1.0
+gps_vel_stdev = 0.5
 
 
 ''' Gen Kalman Filter '''
@@ -34,7 +34,7 @@ alphaQ_vel = 0.5
 sigmaQ_jrk = 0.2 #0075
 alphaQ_jrk = 0.5
 
-sigmaR_pos = 4.5
+sigmaR_pos = 3.0
 sigmaR_vel = 1.5
 
 ''' Control '''
@@ -58,8 +58,8 @@ psi_D = 0.0
 
 throttle_eq = 0.5
 
-max_roll = np.pi/3 #0.196
-max_pitch = np.pi/3 #
+max_roll = 0.1 #np.pi/3 #0.196
+max_pitch = 0.1 #np.pi/3 #
 max_yaw_rate = 1.5 #0.785
 max_throttle = 1.0 #0.85
 
