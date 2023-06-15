@@ -3,7 +3,7 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t = 25
+sim_t = 40
 # t_plot = 1.0
 is_2d = True
 
@@ -34,8 +34,8 @@ alphaQ_vel = 0.5
 sigmaQ_jrk = 0.2 #0075
 alphaQ_jrk = 0.5
 
-sigmaR_pos = 4.5
-sigmaR_vel = 1.5
+sigmaR_pos = 3.0
+sigmaR_vel = 1.0
 
 ''' Control '''
 tau = 0.05

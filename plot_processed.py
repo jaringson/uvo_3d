@@ -7,7 +7,7 @@ from IPython.core.debugger import set_trace
 
 import matplotlib.pyplot as plt
 
-file = 'superData/dynDataProcessed.json'
+file = 'superData/2dProcessed.json'
 
 plt.rcParams.update({'font.size': 15})
 
