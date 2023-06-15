@@ -8,8 +8,8 @@ import params as P
 from animation import Animation
 
 data = []
-# with open("data/data.json", "r") as read_it:
-with open("superData/2dData1/run0quads16cr91.62mv9.86.json", "r") as read_it:
+with open("data/data.json", "r") as read_it:
+# with open("superData/2dData1/run0quads16cr91.62mv9.86.json", "r") as read_it:
     data = json.load(read_it)
 
 numVehicles = len(data.keys())
@@ -23,17 +23,17 @@ numVehicles = len(data.keys())
 #     kalCov = json.load(read_it3)
 
 ''' -------------------------- '''
-# animation = Animation(numVehicles)
-# jump = 10
-#
-# for i in range(len(data['0'])//jump):
-#     # print(i*jump)
-#
-#     animation.drawAll(data, i*jump)
-#     # print(quadStates[i*jump]['v'][0])
-#     # print(quadCommandedStates[i*jump]['v'][0])
-#
-#     plt.pause(0.001)
+animation = Animation(numVehicles)
+jump = 40
+
+for i in range(len(data['0'])//jump):
+    # print(i*jump)
+
+    animation.drawAll(data, i*jump)
+    # print(quadStates[i*jump]['v'][0])
+    # print(quadCommandedStates[i*jump]['v'][0])
+
+    plt.pause(0.001)
 
 ''' -------------------------- '''
 fig = plt.figure()
