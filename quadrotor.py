@@ -21,9 +21,10 @@ class QuadDynamics:
         self.inertia_inv_ = inv(self.inertia_matrix_)
 
         self.x_ = x0
-        waypoint1 = np.array([wp1[0:x0.shape[0]]])
-        dir = (waypoint1.T-x0) / norm(waypoint1.T-x0)
-        self.v_ = dir * np.random.uniform(0,1.0)
+        # waypoint1 = np.array([wp1[0:x0.shape[0]]])
+        # dir = (waypoint1.T-x0) / norm(waypoint1.T-x0)
+        # self.v_ = dir * np.random.uniform(0,1.0)
+        self.v_ = params.v0
         self.q_ = params.q0
         self.omega_ = params.omega0
 

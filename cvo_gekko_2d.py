@@ -103,7 +103,7 @@ class CVOGekko:
 
             ''' Velocity Uncertainty '''
             fromCenterToApex = apexOfCollisionCone - centerOfEllipsoid
-            max_vel_uncertianty = np.max(uncertaintyVel)
+            max_vel_uncertianty = np.max(uncertaintyVel[i])
             apexOfCollisionCone += max_vel_uncertianty*fromCenterToApex/norm(fromCenterToApex)
 
             # print('apex: ', apexOfCollisionCone)
