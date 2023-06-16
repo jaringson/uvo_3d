@@ -18,7 +18,7 @@ collision_radius = 1
 buffer_power = 50
 buffer_on = True
 collision_range = 1500
-start_radius = 150
+start_radius = 50
 
 add_kalman = True
 add_uncertianty = True
