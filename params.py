@@ -3,13 +3,13 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t = 30
+sim_t =  40
 # t_plot = 1.0
 is_2d = True
 
 cvo_dt = 0.1
 
-num_quads = 10
+num_quads = 20
 
 outfile_name = 'outfile.json'
 
@@ -22,20 +22,20 @@ start_radius = 50
 
 add_kalman = True
 add_uncertianty = True
-drop_prob = 0.5
+drop_prob = 0.8
 
-gps_pos_stdev = 3.0
-gps_vel_stdev = 1.0
+gps_pos_stdev = 1.0
+gps_vel_stdev = 0.2
 
 
 ''' Gen Kalman Filter '''
 sigmaQ_vel = 3
-alphaQ_vel = 0.5
-sigmaQ_jrk = 0.2 #0075
-alphaQ_jrk = 0.5
+alphaQ_vel = 2.5
+sigmaQ_jrk = 1.1 #0075
+alphaQ_jrk = 1.1
 
 sigmaR_pos = 6.0
-sigmaR_vel = 2.0
+sigmaR_vel = 1.2
 
 ''' Control '''
 tau = 0.05

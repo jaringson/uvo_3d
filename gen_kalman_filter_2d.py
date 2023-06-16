@@ -19,17 +19,21 @@ class GenKalmanFilter:
 
         self.id_ = id
 
-        self.xhat_ = x
 
         self.meas_dim_ = 2 #Hardcoded for now
 
         ''' constant jerk '''
         self.n_ = self.meas_dim_*4 # xhat = [pos vel acc jerk]^T
 
+        ''' constant velocity '''
+        # self.n_ = self.meas_dim_*2 # xhat = [pos vel]^T
+
         self.dt_ = params.dt
 
         ''' constant jerk '''
         # self.mmtype_ mmtype
+
+        self.xhat_ = x[0:self.n_]
 
         self.A_ = self.build_A()
         self.Q_ = self.build_Q()
@@ -38,9 +42,11 @@ class GenKalmanFilter:
         self.C_vel_ = self.build_C(4, self.n_)
         self.R_pos_ = self.build_R(2)
         self.R_vel_ = self.build_R(4)
-        self.P_ = np.eye(self.n_)
-        # self.P_[0,0] = 1
-        # self.P_[1,1] = 1
+        self.P_ = np.eye(self.n_)*0.1
+        self.P_[0,0] = 1
+        self.P_[1,1] = 1
+        # self.P_[2,2] = 1/20.0
+        # self.P_[3,3] = 1/20.0
 
     def predict(self):
         self.xhat_ = self.A_ @ self.xhat_
@@ -70,9 +76,9 @@ class GenKalmanFilter:
         A = np.zeros((self.n_, self.n_))
         for i in range(self.n_):
             A[i,i] = 1
-            for j in range(1,int(self.n_/2)):
-                if i+(j*2) < (self.n_):
-                    A[i, i+(j*2)] = self.dt_**j / j
+            for j in range(1,int(self.n_/self.meas_dim_)):
+                if i+(j*self.meas_dim_) < (self.n_):
+                    A[i, i+(j*self.meas_dim_)] = self.dt_**j / j
 
         return A
 
@@ -90,6 +96,15 @@ class GenKalmanFilter:
             ])
 
         Q = 2.0 * self.alphaQ_jrk_ * self.sigmaQ_jrk_**2 * Q;
+
+        # Q = np.array([
+        #             [(self.dt_**4)/4, 0, (self.dt_**3)/2, 0],
+        #             [0, (self.dt_**4)/4, 0, (self.dt_**3)/2],
+        #             [(self.dt_**3)/2, 0, (self.dt_**2)/1, 0],
+        #             [0, (self.dt_**3)/2, 0, (self.dt_**2)/1]
+        #             ])
+        #
+        # Q = 2.0 * self.alphaQ_vel_ * self.sigmaQ_vel_**2 * Q;
 
         return Q
 
