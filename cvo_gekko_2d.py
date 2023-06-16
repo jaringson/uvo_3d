@@ -116,9 +116,9 @@ class CVOGekko:
             j = centerOfEllipsoid[0,0]
             k = centerOfEllipsoid[1,0]
 
-            M = np.array([ [1.0/(a*a), 0.0, -2.0*j/(a*a)*0.5],
-                  [0.0, 1.0/(b*b), -2.0*k/(b*b)*0.5],
-                  [-2.0*j/(a*a)*0.5, -2.0*k/(b*b)*0.5, j*j/(a*a)+k*k/(b*b)-1.0] ])
+            M = np.array([ [1.0/(a*a), 0.0, -j/(a*a)],
+                  [0.0, 1.0/(b*b), -k/(b*b)],
+                  [-j/(a*a), -k/(b*b), j*j/(a*a)+k*k/(b*b)-1.0] ])
 
             # allHomogenousMatrices.append(ellipsoidHomogenousMatrix)
             # allCollisionConeApex.append(apexOfCollisionCone4D)
