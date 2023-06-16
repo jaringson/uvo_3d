@@ -8,7 +8,7 @@ from IPython.core.debugger import set_trace
 
 
 class QuadDynamics:
-    def __init__(self, params, id, x0):
+    def __init__(self, params, id, x0, wp1):
         self.id = id
         self._Ts = params.dt
         self.e3_ = np.array([[0.0], [0.0], [1.0]])
@@ -21,8 +21,9 @@ class QuadDynamics:
         self.inertia_inv_ = inv(self.inertia_matrix_)
 
         self.x_ = x0
-        dir = -x0 / norm(x0)
-        self.v_ = dir * np.random.uniform(0,params.max_vel/4.0)
+        waypoint1 = np.array([wp1[0:x0.shape[0]]])
+        dir = (waypoint1.T-x0) / norm(waypoint1.T-x0)
+        self.v_ = dir * np.random.uniform(0,1.0)
         self.q_ = params.q0
         self.omega_ = params.omega0
 

@@ -9,7 +9,7 @@ is_2d = True
 
 cvo_dt = 0.1
 
-num_quads = 20
+num_quads = 10
 
 outfile_name = 'outfile.json'
 
@@ -34,8 +34,8 @@ alphaQ_vel = 0.5
 sigmaQ_jrk = 0.2 #0075
 alphaQ_jrk = 0.5
 
-sigmaR_pos = 3.0
-sigmaR_vel = 1.0
+sigmaR_pos = 6.0
+sigmaR_vel = 2.0
 
 ''' Control '''
 tau = 0.05
