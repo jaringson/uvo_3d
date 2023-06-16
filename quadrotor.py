@@ -22,7 +22,7 @@ class QuadDynamics:
 
         self.x_ = x0
         dir = -x0 / norm(x0)
-        self.v_ = dir * np.random.uniform(0,params.max_vel/4.0)
+        self.v_ = dir * params.max_vel #np.random.uniform(0,params.max_vel/4.0)
         self.q_ = params.q0
         self.omega_ = params.omega0
 

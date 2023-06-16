@@ -32,7 +32,7 @@ def get_waypoints(startRadius, numVehicles, vehicleRadius, seed=int(time.time())
     allPositions.append(point)
     point_w_psi = np.block([[point], [0]])
     point2 = get_random_position(startRadius)
-    while norm(point-point2) < 1.75*startRadius:
+    while norm(point-point2) < 1.95*startRadius:
         point2 = get_random_position(startRadius)
     point2_w_psi = np.block([[point2], [0]])
     dir = (point2_w_psi - point_w_psi)
@@ -51,7 +51,7 @@ def get_waypoints(startRadius, numVehicles, vehicleRadius, seed=int(time.time())
             point = get_random_position(startRadius)
 
             for pos in allPositions:
-                if norm(pos-point) < vehicleRadius*10.0:
+                if norm(pos-point) < vehicleRadius*40.0:
                     foundOther = True
                     break
 
@@ -61,7 +61,7 @@ def get_waypoints(startRadius, numVehicles, vehicleRadius, seed=int(time.time())
         allPositions.append(point)
         point_w_psi = np.block([[point], [0]])
         point2 = get_random_position(startRadius)
-        while norm(point-point2) < 1.75*startRadius:
+        while norm(point-point2) < 1.95*startRadius:
             point2 = get_random_position(startRadius)
         point2_w_psi = np.block([[point2], [0]])
         dir = (point2_w_psi - point_w_psi)
