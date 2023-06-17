@@ -31,11 +31,11 @@ gps_vel_stdev = 0.1
 ''' Gen Kalman Filter '''
 sigmaQ_vel = 3
 alphaQ_vel = 2.5
-sigmaQ_jrk = 1.75 #0075
-alphaQ_jrk = 1.75
+sigmaQ_jrk = 2.75 #0075
+alphaQ_jrk = 2.75
 
 sigmaR_pos = 2.0
-sigmaR_vel = 0.75
+sigmaR_vel = 1.0
 
 ''' Control '''
 tau = 0.05

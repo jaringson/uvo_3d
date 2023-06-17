@@ -31,8 +31,8 @@ class CVOGekko:
 
         for i in range(num_invaders):
 
-            max_uncert = np.max(uncertaintyPos[i])
-            buffer_radius = max_uncert
+            min_uncert = np.min(uncertaintyPos[i])
+            buffer_radius = min_uncert
 
             host = host_pos
             invader = invader_pos[i]
