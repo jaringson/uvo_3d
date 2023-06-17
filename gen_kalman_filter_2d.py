@@ -45,8 +45,8 @@ class GenKalmanFilter:
         self.P_ = np.eye(self.n_)*0.1
         self.P_[0,0] = 1
         self.P_[1,1] = 1
-        # self.P_[2,2] = 1/20.0
-        # self.P_[3,3] = 1/20.0
+        self.P_[2,2] = 0.5
+        self.P_[3,3] = 0.5
 
     def predict(self):
         self.xhat_ = self.A_ @ self.xhat_
