@@ -64,6 +64,8 @@ class CVOManager:
             ''' Add uncertainty to the data '''
             av2Pos = allQuads[quadKey].x_ + rndnorm(0, self.gps_pos_stdev, size=(3,1))
             av2Vel = rota(allQuads[quadKey].q_, allQuads[quadKey].v_) + rndnorm(0, self.gps_vel_stdev, size=(3,1))
+            # directionalV = np.block([[rndnorm(0, self.gps_vel_stdev, size=(1,1))],[0], [0]])
+            # av2Vel = rota(allQuads[quadKey].q_, allQuads[quadKey].v_) + rota(allQuads[quadKey].q_, directionalV)
 
             av2Pos = av2Pos[0:2]
             av2Vel = av2Vel[0:2]
@@ -102,6 +104,7 @@ class CVOManager:
 
                 ''' If/Else for uncertainty from Kalman filter '''
                 if self.addUncertainty_:
+                    # print(P_mat[0,0], P_mat[1,1], P_mat[2,2], P_mat[3,3])
                     uncertPos.append( [3.0*P_mat[0,0]**0.5, 3.0*P_mat[1,1]**0.5] )
                     uncertVel.append( [3.0*P_mat[2,2]**0.5, 3.0*P_mat[3,3]**0.5] )
 

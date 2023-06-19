@@ -9,7 +9,7 @@ from IPython.core.debugger import set_trace
 
 class CVOGekko:
     def __init__(self, params, id, collision_range):
-        self.alpha = 0.5
+        self.alpha = 1.0 #0.5
         self.id = id
 
         self.collisionRadius = params.collision_radius
@@ -29,9 +29,11 @@ class CVOGekko:
 
         sum_velocity = np.zeros((2,1))
 
+        trigger = False
+
         for i in range(num_invaders):
 
-            min_uncert = np.min(uncertaintyPos[i])
+            min_uncert = self.collisionRadius
             buffer_radius = min_uncert
 
             host = host_pos
@@ -42,6 +44,7 @@ class CVOGekko:
             dist_to_buffer = euc_dist - buffer_radius
 
             if dist_to_buffer <= 1e-3:
+                trigger = True
                 dist_to_buffer = 1e-3
 
             buffer_force = (buffer_radius/dist_to_buffer)**self.bufferPower
@@ -52,21 +55,26 @@ class CVOGekko:
 
         if norm(avg_velocity) > self.max_vel:
             avg_velocity = avg_velocity / norm(avg_velocity) * self.max_vel
-        # set_trace()
 
-        return avg_velocity
+        return avg_velocity, trigger
 
     def get_best_vel(self, av1Xo, av1Vo, av1VelDes,
             inRangePos, inRangeVel,
             uncertaintyPos, uncertaintyVel):
         numOther = len(inRangePos)
 
-        av1BuffVel = np.zeros((2,1))
-        if self.bufferOn:
-            av1BuffVel = self.calculate_buffer(av1Xo, inRangePos, uncertaintyPos)
-            av1BuffVel = av1BuffVel / (0.5*norm(av1VelDes))
-
-        av1VelDes = (2.0*av1VelDes + av1BuffVel)/2.0;
+        # av1BuffVel = np.zeros((2,1))
+        # trigger = False
+        # if self.bufferOn:
+        #     av1BuffVel, trigger = self.calculate_buffer(av1Xo, inRangePos, uncertaintyPos)
+        #     # av1BuffVel = av1BuffVel / (0.5*norm(av1VelDes))
+        #
+        # if trigger:
+        #     print('trigger')
+        #     # set_trace()
+        #     # return av1BuffVel[0,0], av1BuffVel[1,0]
+        #
+        # av1VelDes = (2.0*av1VelDes + av1BuffVel)/2.0;
 
         vdx = av1VelDes[0,0]
         vdy = av1VelDes[1,0]
@@ -98,6 +106,9 @@ class CVOGekko:
 
             from1XTo2X = av2Xo - av1Xo
 
+            ap = 0
+            M = 0
+
             apexOfCollisionCone = (1.0-self.alpha)*av1Vo + self.alpha*av2Vo
             centerOfEllipsoid = from1XTo2X + apexOfCollisionCone
 
@@ -105,8 +116,9 @@ class CVOGekko:
             fromCenterToApex = apexOfCollisionCone - centerOfEllipsoid
             max_vel_uncertianty = np.max(uncertaintyVel[i])
             vel_translate = max_vel_uncertianty*fromCenterToApex/norm(fromCenterToApex)
-            apexOfCollisionCone += vel_translate
-            centerOfEllipsoid += vel_translate
+            # set_trace()
+            apexOfCollisionCone = apexOfCollisionCone + vel_translate
+            centerOfEllipsoid = centerOfEllipsoid + vel_translate
 
             # print('apex: ', apexOfCollisionCone)
             apexOfCollisionCone4D = np.block([[apexOfCollisionCone], [1.0]])
@@ -118,17 +130,42 @@ class CVOGekko:
             j = centerOfEllipsoid[0,0]
             k = centerOfEllipsoid[1,0]
 
-            M = np.array([ [1.0/(a*a), 0.0, -j/(a*a)],
-                  [0.0, 1.0/(b*b), -k/(b*b)],
-                  [-j/(a*a), -k/(b*b), j*j/(a*a)+k*k/(b*b)-1.0] ])
+            start_a = a
+            start_b = b
+            apexInEllipsoid = True
+            failed = False
 
-            # allHomogenousMatrices.append(ellipsoidHomogenousMatrix)
-            # allCollisionConeApex.append(apexOfCollisionCone4D)
-            # allTangentLines.push_back(tangentLine)
-            # allTimeToCollisionWeights.append(timeWeight)
+            while apexInEllipsoid:
 
 
-            ap = apexOfCollisionCone4D
+                M = np.array([ [1.0/(a*a), 0.0, -j/(a*a)],
+                      [0.0, 1.0/(b*b), -k/(b*b)],
+                      [-j/(a*a), -k/(b*b), j*j/(a*a)+k*k/(b*b)-1.0] ])
+
+
+                # allHomogenousMatrices.append(ellipsoidHomogenousMatrix)
+                # allCollisionConeApex.append(apexOfCollisionCone4D)
+                # allTangentLines.push_back(tangentLine)
+                # allTimeToCollisionWeights.append(timeWeight)
+
+                ap = apexOfCollisionCone4D
+
+                if ap.T@M@ap < 0:
+                    failed = True
+
+                    a = a - 0.001
+                    b = b - 0.001
+
+                    if a <= 0 or b <= 0:
+                        a = 0.0001
+                        b = 0.0001
+                        apexInEllipsoid = False
+                    continue
+                apexInEllipsoid = False
+
+
+            # if failed:
+            #     print('id: ', self.id, ' other: ', i, ' start_a: ', start_a, ' a : ', a, ' norm: ', norm(from1XTo2X))
 
             new_s = np.array([[sx-ap[0,0]],[sy-ap[1,0]], [0.0]])
 

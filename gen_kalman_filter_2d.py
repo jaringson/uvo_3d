@@ -45,8 +45,8 @@ class GenKalmanFilter:
         self.P_ = np.eye(self.n_)*0.1
         self.P_[0,0] = 1
         self.P_[1,1] = 1
-        self.P_[2,2] = 0.5
-        self.P_[3,3] = 0.5
+        self.P_[2,2] = 1.0
+        self.P_[3,3] = 1.0
 
     def predict(self):
         self.xhat_ = self.A_ @ self.xhat_
@@ -66,7 +66,7 @@ class GenKalmanFilter:
         self.xhat_ = self.xhat_ + K@(measurement -C@self.xhat_)
         eye_n = np.eye(self.n_)
 
-        self.P_ = (eye_n - K@C)@self.P_
+        self.P_ = (eye_n - K@C)@self.P_@(eye_n - K@C).T + K@R@K.T
         # set_trace()
 
     def update_radar(self):
@@ -121,6 +121,7 @@ class GenKalmanFilter:
         Im_pos = np.eye(m_vel)
         Im_pos[2,2] = 0
         Im_pos[3,3] = 0
+        # Im_pos[0,0] = 2
 
         Im_vel = np.eye(m_vel)
         Im_vel[0,0] = 0
