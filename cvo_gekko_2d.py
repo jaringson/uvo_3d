@@ -125,8 +125,6 @@ class CVOGekko:
             ''' Position Uncertainty '''
             a = uncertaintyPos[i][0]+2.0*self.collisionRadius
             b = uncertaintyPos[i][1]+2.0*self.collisionRadius
-            j = centerOfEllipsoid[0,0]
-            k = centerOfEllipsoid[1,0]
 
             ''' Velocity Uncertainty '''
             # fromCenterToApex = apexOfCollisionCone - centerOfEllipsoid
@@ -146,6 +144,9 @@ class CVOGekko:
             if norm(self.solve_equations(vel_translate, data)) < 1e-4:
                 apexOfCollisionCone = apexOfCollisionCone - vel_translate
                 centerOfEllipsoid = centerOfEllipsoid - vel_translate
+
+            j = centerOfEllipsoid[0,0]
+            k = centerOfEllipsoid[1,0]
 
             # print('apex: ', apexOfCollisionCone)
             apexOfCollisionCone4D = np.block([[apexOfCollisionCone], [1.0]])

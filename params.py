@@ -3,7 +3,7 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t =  15
+sim_t =  20
 # t_plot = 1.0
 is_2d = True
 
@@ -31,11 +31,11 @@ gps_vel_stdev = 0.1
 ''' Gen Kalman Filter '''
 sigmaQ_vel = 3
 alphaQ_vel = 2.5
-sigmaQ_jrk = 3 #0075
-alphaQ_jrk = 3.5
+sigmaQ_jrk = 1 #0075
+alphaQ_jrk = 1.5
 
 sigmaR_pos = 2.0
-sigmaR_vel = 0.5
+sigmaR_vel = 1.0
 
 ''' Control '''
 tau = 0.05
@@ -58,8 +58,8 @@ psi_D = 0.0
 
 throttle_eq = 0.5
 
-max_roll = np.pi/3 #0.196
-max_pitch = np.pi/3 #
+max_roll = np.pi/5 #0.196
+max_pitch = np.pi/5 #
 max_yaw_rate = 1.5 #0.785
 max_throttle = 1.0 #0.85
 
