@@ -142,6 +142,8 @@ class CVOGekko:
             # print(norm(self.solve_equations(vel_translate, data)))
             # set_trace()
             if norm(self.solve_equations(vel_translate, data)) < 1e-4:
+                if norm(vel_translate) > self.max_vel:
+                    vel_translate = self.max_vel * vel_translate / norm(vel_translate) 
                 apexOfCollisionCone = apexOfCollisionCone - vel_translate
                 centerOfEllipsoid = centerOfEllipsoid - vel_translate
 
