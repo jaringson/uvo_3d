@@ -3,7 +3,7 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t =  30
+sim_t =  15
 # t_plot = 1.0
 is_2d = True
 
@@ -31,11 +31,11 @@ gps_vel_stdev = 0.1
 ''' Gen Kalman Filter '''
 sigmaQ_vel = 3
 alphaQ_vel = 2.5
-sigmaQ_jrk = 1.75 #0075
-alphaQ_jrk = 1.75
+sigmaQ_jrk = 3 #0075
+alphaQ_jrk = 3.5
 
-sigmaR_pos = 3.0
-sigmaR_vel = 1.0
+sigmaR_pos = 2.0
+sigmaR_vel = 0.5
 
 ''' Control '''
 tau = 0.05
@@ -97,6 +97,6 @@ gravity = 9.80665
 
 ''' Waypoint Manager '''
 Kp =  [0.5, 0.5, 0.5]
-max_vel = 5.0
+max_vel = 10.0
 waypoint_threshold = 0.1
 waypoint_velocity_threshold = 0.5

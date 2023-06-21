@@ -6,6 +6,9 @@ import time
 from random import random
 from IPython.core.debugger import set_trace
 
+from scipy.optimize import fsolve
+
+from utils import angle_between
 
 class CVOGekko:
     def __init__(self, params, id, collision_range):
@@ -57,6 +60,13 @@ class CVOGekko:
             avg_velocity = avg_velocity / norm(avg_velocity) * self.max_vel
 
         return avg_velocity, trigger
+
+    def solve_equations(self, p, data):
+        a1, b1, j1, k1, a2, b2 = data
+        x, y = p
+
+        return (2*x*y*(-k1**2+b1**2)-2*j1*k1*(-y**2+b2**2),
+                2*x*y*(-j1**2+a1**2)-2*j1*k1*(-x**2+a2**2))
 
     def get_best_vel(self, av1Xo, av1Vo, av1VelDes,
             inRangePos, inRangeVel,
@@ -112,23 +122,34 @@ class CVOGekko:
             apexOfCollisionCone = (1.0-self.alpha)*av1Vo + self.alpha*av2Vo
             centerOfEllipsoid = from1XTo2X + apexOfCollisionCone
 
-            ''' Velocity Uncertainty '''
-            fromCenterToApex = apexOfCollisionCone - centerOfEllipsoid
-            max_vel_uncertianty = np.max(uncertaintyVel[i])
-            vel_translate = max_vel_uncertianty*fromCenterToApex/norm(fromCenterToApex)
-            # set_trace()
-            apexOfCollisionCone = apexOfCollisionCone + vel_translate
-            centerOfEllipsoid = centerOfEllipsoid + vel_translate
-
-            # print('apex: ', apexOfCollisionCone)
-            apexOfCollisionCone4D = np.block([[apexOfCollisionCone], [1.0]])
-
-
             ''' Position Uncertainty '''
             a = uncertaintyPos[i][0]+2.0*self.collisionRadius
             b = uncertaintyPos[i][1]+2.0*self.collisionRadius
             j = centerOfEllipsoid[0,0]
             k = centerOfEllipsoid[1,0]
+
+            ''' Velocity Uncertainty '''
+            # fromCenterToApex = apexOfCollisionCone - centerOfEllipsoid
+            # max_vel_uncertianty = np.max(uncertaintyVel[i])
+            # vel_translate = max_vel_uncertianty*fromCenterToApex/norm(fromCenterToApex)
+            data = [a,b,from1XTo2X[0,0],from1XTo2X[1,0],uncertaintyVel[i][0],uncertaintyVel[i][1]]
+            # print(data)
+            vel_translate = fsolve(self.solve_equations, (from1XTo2X[0,0],from1XTo2X[1,0]), args=data )
+            vel_translate = vel_translate.reshape((2,1))
+            # set_trace()
+            if angle_between(-vel_translate.T, from1XTo2X) < angle_between(vel_translate.T, from1XTo2X):
+                vel_translate = -vel_translate
+                print('switch')
+            # print(vel_translate)
+            # print(norm(self.solve_equations(vel_translate, data)))
+            # set_trace()
+            if norm(self.solve_equations(vel_translate, data)) < 1e-4:
+                apexOfCollisionCone = apexOfCollisionCone - vel_translate
+                centerOfEllipsoid = centerOfEllipsoid - vel_translate
+
+            # print('apex: ', apexOfCollisionCone)
+            apexOfCollisionCone4D = np.block([[apexOfCollisionCone], [1.0]])
+
 
             start_a = a
             start_b = b
