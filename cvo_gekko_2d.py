@@ -204,8 +204,8 @@ class CVOGekko:
 
         if not solve_success:
             # print('Solve Success Error')
-            sx.value = [0] #[av1Vo[0,0]] # [av1VelDes[0,0]]
-            sy.value = [0] #[av1Vo[1,0]] # [av1VelDes[1,0]]
+            sx.value = [av1Vo[0,0]] # [av1VelDes[0,0]]
+            sy.value = [av1Vo[1,0]] # [av1VelDes[1,0]]
             # for c in allContraints:
             #     print("c value :", c.value)
             # print("s :", sx.value[0], sy.value[0], sz.value[0])
