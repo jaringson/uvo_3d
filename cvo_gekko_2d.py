@@ -22,51 +22,7 @@ class CVOGekko:
 
         self.max_vel = params.max_vel
 
-    def calculate_buffer(self, host_pos, invader_pos, uncertaintyPos):
 
-        power = self.bufferPower
-
-        num_invaders = len(invader_pos)
-        if(num_invaders == 0):
-            return np.zeros((2,1))
-
-        sum_velocity = np.zeros((2,1))
-
-        trigger = False
-
-        for i in range(num_invaders):
-
-            min_uncert = self.collisionRadius
-            buffer_radius = min_uncert
-
-            host = host_pos
-            invader = invader_pos[i]
-            diff = invader - host
-            euc_dist = norm(diff)
-
-            dist_to_buffer = euc_dist - buffer_radius
-
-            if dist_to_buffer <= 1e-3:
-                trigger = True
-                dist_to_buffer = 1e-3
-
-            buffer_force = (buffer_radius/dist_to_buffer)**self.bufferPower
-            buffer_velocity = abs(buffer_force) * (-diff)/norm(diff)
-            sum_velocity += buffer_velocity
-
-        avg_velocity = sum_velocity / (1.0*num_invaders)
-
-        if norm(avg_velocity) > self.max_vel:
-            avg_velocity = avg_velocity / norm(avg_velocity) * self.max_vel
-
-        return avg_velocity, trigger
-
-    def solve_equations(self, p, data):
-        a1, b1, j1, k1, a2, b2 = data
-        x, y = p
-
-        return (2*x*y*(-k1**2+b1**2)-2*j1*k1*(-y**2+b2**2),
-                2*x*y*(-j1**2+a1**2)-2*j1*k1*(-x**2+a2**2))
 
     def get_best_vel(self, av1Xo, av1Vo, av1VelDes,
             inRangePos, inRangeVel,
@@ -94,8 +50,6 @@ class CVOGekko:
         sx = m.Var(av1VelDes[0,0], name='sx')
         sy = m.Var(av1VelDes[1,0], name='sy')
 
-        s = np.array([[sx],[sy], [0.0]])
-
         y1 = m.Param(1e4)
         y2 = m.Param(1e-1)
 
@@ -116,43 +70,14 @@ class CVOGekko:
 
             from1XTo2X = av2Xo - av1Xo
 
-            ap = 0
-            M = 0
 
             apexOfCollisionCone = (1.0-self.alpha)*av1Vo + self.alpha*av2Vo
             centerOfEllipsoid = from1XTo2X + apexOfCollisionCone
 
+
             ''' Position Uncertainty '''
             a = uncertaintyPos[i][0]+2.0*self.collisionRadius
             b = uncertaintyPos[i][1]+2.0*self.collisionRadius
-
-            ''' Velocity Uncertainty '''
-            # fromCenterToApex = apexOfCollisionCone - centerOfEllipsoid
-            # max_vel_uncertianty = np.max(uncertaintyVel[i])
-            # vel_translate = max_vel_uncertianty*fromCenterToApex/norm(fromCenterToApex)
-            data = [a,b,from1XTo2X[0,0],from1XTo2X[1,0],uncertaintyVel[i][0],uncertaintyVel[i][1]]
-            # print(data)
-            vel_translate = fsolve(self.solve_equations, (from1XTo2X[0,0],from1XTo2X[1,0]), args=data )
-            vel_translate = vel_translate.reshape((2,1))
-            # set_trace()
-            if angle_between(-vel_translate.T, from1XTo2X) < angle_between(vel_translate.T, from1XTo2X):
-                vel_translate = -vel_translate
-                print('switch')
-            # print(vel_translate)
-            # print(norm(self.solve_equations(vel_translate, data)))
-            # set_trace()
-            if norm(self.solve_equations(vel_translate, data)) < 1e-4:
-                if norm(vel_translate) > self.max_vel:
-                    vel_translate = self.max_vel * vel_translate / norm(vel_translate) 
-                apexOfCollisionCone = apexOfCollisionCone - vel_translate
-                centerOfEllipsoid = centerOfEllipsoid - vel_translate
-
-            j = centerOfEllipsoid[0,0]
-            k = centerOfEllipsoid[1,0]
-
-            # print('apex: ', apexOfCollisionCone)
-            apexOfCollisionCone4D = np.block([[apexOfCollisionCone], [1.0]])
-
 
             start_a = a
             start_b = b
@@ -161,20 +86,9 @@ class CVOGekko:
 
             while apexInEllipsoid:
 
-
-                M = np.array([ [1.0/(a*a), 0.0, -j/(a*a)],
-                      [0.0, 1.0/(b*b), -k/(b*b)],
-                      [-j/(a*a), -k/(b*b), j*j/(a*a)+k*k/(b*b)-1.0] ])
-
-
-                # allHomogenousMatrices.append(ellipsoidHomogenousMatrix)
-                # allCollisionConeApex.append(apexOfCollisionCone4D)
-                # allTangentLines.push_back(tangentLine)
-                # allTimeToCollisionWeights.append(timeWeight)
-
-                ap = apexOfCollisionCone4D
-
-                if ap.T@M@ap < 0:
+                j_pos = from1XTo2X[0,0]
+                k_pos = from1XTo2X[1,0]
+                if j_pos**2/a**2 + k_pos**2/b**2 - 1.0 < 0:
                     failed = True
 
                     a = a - 0.001
@@ -187,26 +101,51 @@ class CVOGekko:
                     continue
                 apexInEllipsoid = False
 
-
             # if failed:
             #     print('id: ', self.id, ' other: ', i, ' start_a: ', start_a, ' a : ', a, ' norm: ', norm(from1XTo2X))
 
-            new_s = np.array([[sx-ap[0,0]],[sy-ap[1,0]], [0.0]])
+            ''' Velocity Uncertainty '''
+            uVx = uncertaintyVel[i][0]
+            uVy = uncertaintyVel[i][1]
+            s_norm = m.Intermediate(m.sqrt((sx-apexOfCollisionCone[0,0])**2 + (sy-apexOfCollisionCone[1,0])**2))
+            x_trans = m.Intermediate(uVx * (sx-apexOfCollisionCone[0,0]) / s_norm)
+            y_trans = m.Intermediate(uVy * (sy-apexOfCollisionCone[1,0]) / s_norm)
 
+            ''' Make sure the point is not inside velocity uncertainty '''
+            m.Equation( (sx-apexOfCollisionCone[0,0])**2/uVx**2 +
+                                (sy-apexOfCollisionCone[1,0])**2/uVy**2 - 1 >= 0 )
+
+            apx = apexOfCollisionCone[0,0] + x_trans
+            apy = apexOfCollisionCone[1,0] + y_trans
+
+            j = centerOfEllipsoid[0,0] + x_trans
+            k = centerOfEllipsoid[1,0] + y_trans
+
+
+            new_s = np.array([
+                    [sx-apx],
+                    [sy-apy],
+                    [0.0]])
+
+            M = np.array([ [1.0/(a*a), 0.0, -j/(a*a)],
+                [0.0, 1.0/(b*b), -k/(b*b)],
+                [-j/(a*a), -k/(b*b), j*j/(a*a)+k*k/(b*b)-1.0] ])
+
+            ap = np.array([[apx], [apy], [1.0]])
 
             lam1 = m.Intermediate((-new_s.T@M@ap)[0,0])
             lam2 = m.Intermediate((new_s.T@M@new_s)[0,0])
             # lam = m.Intermediate(m.sqrt( lam1*lam1/(lam2*lam2) ))
             lam = m.Intermediate(m.abs2(lam1/lam2))
 
-            valx = ap[0,0]+lam*(sx-ap[0,0])
-            valy = ap[1,0]+lam*(sy-ap[1,0])
+            valx = apx+lam*(sx-apx)
+            valy = apy+lam*(sy-apy)
 
             val = np.array([ [valx], [valy], [1.0] ])
             # set_trace()
 
             constraint = m.Intermediate((val.T@M@val)[0,0])
-            allContraints.append(constraint)
+            # allContraints.append(constraint)
 
             #delta = m.Var()
             #allDeltas.append(delta)
@@ -223,6 +162,8 @@ class CVOGekko:
 
             m.Equation( constraint >= 0  )
 
+
+
         # allDeltas = np.array(allDeltas)
         # allDistanceWeights = np.diag(allDistanceWeights)
         # deltas_cost = m.Intermediate(allDeltas.T @ allDistanceWeights @ allDeltas)
@@ -236,7 +177,7 @@ class CVOGekko:
         # m.options.MAX_ITER = 100
         # t1 = time.time()
         solve_success = False
-        for i in range(100):
+        for i in range(10):
             # if i > 50:
             #     print(i, self.id)
             #     # set_trace()
@@ -263,8 +204,8 @@ class CVOGekko:
 
         if not solve_success:
             # print('Solve Success Error')
-            sx.value = [av1Vo[0,0]] # [av1VelDes[0,0]]
-            sy.value = [av1Vo[1,0]] # [av1VelDes[1,0]]
+            sx.value = [0] #[av1Vo[0,0]] # [av1VelDes[0,0]]
+            sy.value = [0] #[av1Vo[1,0]] # [av1VelDes[1,0]]
             # for c in allContraints:
             #     print("c value :", c.value)
             # print("s :", sx.value[0], sy.value[0], sz.value[0])
