@@ -9,7 +9,7 @@ is_2d = True
 
 cvo_dt = 0.1
 
-num_quads = 20
+num_quads = 2
 
 outfile_name = 'outfile.json'
 
@@ -31,11 +31,11 @@ gps_vel_stdev = 0.1
 ''' Gen Kalman Filter '''
 sigmaQ_vel = 3
 alphaQ_vel = 2.5
-sigmaQ_jrk = 0.75 #0075
-alphaQ_jrk = 0.75
+sigmaQ_jrk = 2.0 #0075
+alphaQ_jrk = 2.0
 
 sigmaR_pos = 2.0
-sigmaR_vel = 2.0
+sigmaR_vel = 0.7
 
 ''' Control '''
 tau = 0.05
@@ -58,8 +58,8 @@ psi_D = 0.0
 
 throttle_eq = 0.5
 
-max_roll = np.pi/4 #0.196
-max_pitch = np.pi/4 #
+max_roll = np.pi/10 #0.196
+max_pitch = np.pi/10 #
 max_yaw_rate = 1.5 #0.785
 max_throttle = 1.0 #0.85
 
