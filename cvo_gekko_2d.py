@@ -76,8 +76,8 @@ class CVOGekko:
 
 
             ''' Position Uncertainty '''
-            a = uncertaintyPos[i][0]+2.0*self.collisionRadius
-            b = uncertaintyPos[i][1]+2.0*self.collisionRadius
+            a = uncertaintyPos[i][0]+2.0*self.collisionRadius#+uncertaintyVel[i][0]
+            b = uncertaintyPos[i][1]+2.0*self.collisionRadius#+uncertaintyVel[i][1]
             j_pos = from1XTo2X[0,0]
             k_pos = from1XTo2X[1,0]
 
@@ -107,21 +107,32 @@ class CVOGekko:
             ''' Velocity Uncertainty '''
             uVx = uncertaintyVel[i][0]
             uVy = uncertaintyVel[i][1]
+            # nx = 1
+            # ny = k_pos*a**2/(j_pos*b**2)
+            # proj_len = m.Intermediate( (sx*nx+sy*ny)/(nx*nx+ny*ny) )
+            # proj_x = m.Intermediate(sx - nx*proj_len)
+            # proj_y = m.Intermediate(sy - ny*proj_len)
+            # proj_norm = m.Intermediate(m.sqrt(proj_x**2 + proj_y**2))
+            # # proj_sig_on = m.Intermediate(1/(1+m.exp(-100*(proj_norm - uVx))))
+            # # proj_sig_off = m.Intermediate(1/(1+m.exp(100*(proj_norm - uVx))))
+            # x_trans = m.Intermediate( uVx * proj_x / proj_norm )
+            # y_trans = m.Intermediate( uVy * proj_y / proj_norm )
+            # # x_trans = m.Intermediate( m.if2(uVx - proj_norm, uVx * proj_x / proj_norm, proj_x ) )
+            # # y_trans = m.Intermediate( m.if2(uVy - proj_norm, uVy * proj_y / proj_norm, proj_y ) )
+
             nx = 1
-            ny = k_pos*a**2/(j_pos*b**2)
-            proj_len = m.Intermediate( (sx*nx+sy*ny)/(nx*nx+ny*ny) )
-            proj_x = m.Intermediate(sx - nx*proj_len)
-            proj_y = m.Intermediate(sy - ny*proj_len)
-            proj_norm = m.Intermediate(m.sqrt(proj_x**2 + proj_y**2))
-            x_trans = m.Intermediate(uVx * proj_x / proj_norm)
-            y_trans = m.Intermediate(uVy * proj_y / proj_norm)
+            ny = -j_pos*b**2/(k_pos*a**2)
+            norm_n = np.sqrt(nx*nx + ny*ny)
+
+            x_trans = uVx * nx/norm_n
+            y_trans = uVy * ny/norm_n
 
             ''' Make sure the point is not inside velocity uncertainty '''
             m.Equation( (sx-apexOfCollisionCone[0,0])**2/uVx**2 +
                                 (sy-apexOfCollisionCone[1,0])**2/uVy**2 - 1.0 >= 0 )
 
-            all_x_trans = [0, x_trans]
-            all_y_trans = [0, y_trans]
+            all_x_trans = [0, x_trans, -x_trans] #, x_trans/2.0, -x_trans/2.0]
+            all_y_trans = [0, y_trans, -y_trans] #, y_trans/2.0, -y_trans/2.0]
 
             for i in range(len(all_x_trans)):
                 apx = apexOfCollisionCone[0,0] + all_x_trans[i]
