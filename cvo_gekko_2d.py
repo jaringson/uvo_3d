@@ -22,6 +22,12 @@ class CVOGekko:
 
         self.max_vel = params.max_vel
 
+    def solve_equations(self, p, data):
+        a1, b1, j1, k1, a2, b2 = data
+        x, y = p
+
+        return (2*x*y*(-k1**2+b1**2)-2*j1*k1*(-y**2+b2**2),
+                2*x*y*(-j1**2+a1**2)-2*j1*k1*(-x**2+a2**2))
 
 
     def get_best_vel(self, av1Xo, av1Vo, av1VelDes,
@@ -105,71 +111,60 @@ class CVOGekko:
             #     print('id: ', self.id, ' other: ', i, ' start_a: ', start_a, ' a : ', a, ' norm: ', norm(from1XTo2X))
 
             ''' Velocity Uncertainty '''
-            uVx = uncertaintyVel[i][0]
-            uVy = uncertaintyVel[i][1]
-            # nx = 1
-            # ny = k_pos*a**2/(j_pos*b**2)
-            # proj_len = m.Intermediate( (sx*nx+sy*ny)/(nx*nx+ny*ny) )
-            # proj_x = m.Intermediate(sx - nx*proj_len)
-            # proj_y = m.Intermediate(sy - ny*proj_len)
-            # proj_norm = m.Intermediate(m.sqrt(proj_x**2 + proj_y**2))
-            # # proj_sig_on = m.Intermediate(1/(1+m.exp(-100*(proj_norm - uVx))))
-            # # proj_sig_off = m.Intermediate(1/(1+m.exp(100*(proj_norm - uVx))))
-            # x_trans = m.Intermediate( uVx * proj_x / proj_norm )
-            # y_trans = m.Intermediate( uVy * proj_y / proj_norm )
-            # # x_trans = m.Intermediate( m.if2(uVx - proj_norm, uVx * proj_x / proj_norm, proj_x ) )
-            # # y_trans = m.Intermediate( m.if2(uVy - proj_norm, uVy * proj_y / proj_norm, proj_y ) )
-
-            nx = 1
-            ny = -j_pos*b**2/(k_pos*a**2)
-            norm_n = np.sqrt(nx*nx + ny*ny)
-
-            x_trans = uVx * nx/norm_n
-            y_trans = uVy * ny/norm_n
-
-            ''' Make sure the point is not inside velocity uncertainty '''
-            m.Equation( (sx-apexOfCollisionCone[0,0])**2/uVx**2 +
-                                (sy-apexOfCollisionCone[1,0])**2/uVy**2 - 1.0 >= 0 )
-
-            all_x_trans = [0, x_trans, -x_trans] #, x_trans/2.0, -x_trans/2.0]
-            all_y_trans = [0, y_trans, -y_trans] #, y_trans/2.0, -y_trans/2.0]
-
-            for i in range(len(all_x_trans)):
-                apx = apexOfCollisionCone[0,0] + all_x_trans[i]
-                apy = apexOfCollisionCone[1,0] + all_y_trans[i]
-
-                j = centerOfEllipsoid[0,0] + all_x_trans[i]
-                k = centerOfEllipsoid[1,0] + all_y_trans[i]
-
-
-                new_s = np.array([
-                        [sx-apx],
-                        [sy-apy],
-                        [0.0]])
-
-                M = np.array([ [1.0/(a*a), 0.0, -j/(a*a)],
-                    [0.0, 1.0/(b*b), -k/(b*b)],
-                    [-j/(a*a), -k/(b*b), j*j/(a*a)+k*k/(b*b)-1.0] ])
-
-                ap = np.array([[apx], [apy], [1.0]])
-
-                lam1 = m.Intermediate((-new_s.T@M@ap)[0,0])
-                lam2 = m.Intermediate((new_s.T@M@new_s)[0,0])
-                # lam = m.Intermediate(m.sqrt( lam1*lam1/(lam2*lam2) ))
-                lam = m.Intermediate(m.abs2(lam1/lam2))
-
-                valx = apx+lam*(sx-apx)
-                valy = apy+lam*(sy-apy)
-
-                val = np.array([ [valx], [valy], [1.0] ])
-                # set_trace()
-
-                constraint = m.Intermediate((val.T@M@val)[0,0])
-                # allContraints.append(constraint)
+            data = [a,b,from1XTo2X[0,0],from1XTo2X[1,0],uncertaintyVel[i][0],uncertaintyVel[i][1]]
+            # print(data)
+            vel_translate = fsolve(self.solve_equations, (from1XTo2X[0,0],from1XTo2X[1,0]), args=data )
+            vel_translate = vel_translate.reshape((2,1))
+            # set_trace()
+            if abs(angle_between(-vel_translate.T, from1XTo2X)) < abs(angle_between(vel_translate.T, from1XTo2X)):
+                vel_translate = -vel_translate
+                print('switch')
+            # print(vel_translate)
+            # print(norm(self.solve_equations(vel_translate, data)))
+            # set_trace()
+            if norm(self.solve_equations(vel_translate, data)) < 1e-4:
+                if norm(from1XTo2X) < 5.0*self.max_vel:
+                    # print(angle_between(vel_translate.T, from1XTo2X))
+                    apexOfCollisionCone = apexOfCollisionCone - vel_translate
+                    centerOfEllipsoid = centerOfEllipsoid - vel_translate
 
 
 
-                m.Equation( constraint >= 0  )
+            apx = apexOfCollisionCone[0,0]
+            apy = apexOfCollisionCone[1,0]
+
+            j = centerOfEllipsoid[0,0]
+            k = centerOfEllipsoid[1,0]
+
+
+            new_s = np.array([
+                    [sx-apx],
+                    [sy-apy],
+                    [0.0]])
+
+            M = np.array([ [1.0/(a*a), 0.0, -j/(a*a)],
+                [0.0, 1.0/(b*b), -k/(b*b)],
+                [-j/(a*a), -k/(b*b), j*j/(a*a)+k*k/(b*b)-1.0] ])
+
+            ap = np.array([[apx], [apy], [1.0]])
+
+            lam1 = m.Intermediate((-new_s.T@M@ap)[0,0])
+            lam2 = m.Intermediate((new_s.T@M@new_s)[0,0])
+            # lam = m.Intermediate(m.sqrt( lam1*lam1/(lam2*lam2) ))
+            lam = m.Intermediate(m.abs2(lam1/lam2))
+
+            valx = apx+lam*(sx-apx)
+            valy = apy+lam*(sy-apy)
+
+            val = np.array([ [valx], [valy], [1.0] ])
+            # set_trace()
+
+            constraint = m.Intermediate((val.T@M@val)[0,0])
+            # allContraints.append(constraint)
+
+
+
+            m.Equation( constraint >= 0  )
 
 
 
