@@ -11,7 +11,7 @@ from scipy.optimize import fsolve
 from utils import angle_between
 
 class CVOGekko:
-    def __init__(self, params, id, collision_range):
+    def __init__(self, params, id, collision_range, max_vel):
         self.alpha = 1.0 #0.5
         self.id = id
 
@@ -20,7 +20,7 @@ class CVOGekko:
         self.bufferOn = params.buffer_on
         self.collisionRange = collision_range
 
-        self.max_vel = params.max_vel
+        self.max_vel = max_vel
 
     def solve_equations(self, p, data):
         a1, b1, j1, k1, a2, b2 = data
@@ -107,8 +107,8 @@ class CVOGekko:
                     continue
                 apexInEllipsoid = False
 
-            # if failed:
-            #     print('id: ', self.id, ' other: ', i, ' start_a: ', start_a, ' a : ', a, ' norm: ', norm(from1XTo2X))
+            if failed:
+                print('id: ', self.id, ' other: ', i, ' start_a: ', start_a, ' a : ', a, ' norm: ', norm(from1XTo2X))
 
             ''' Velocity Uncertainty '''
             data = [a,b,from1XTo2X[0,0],from1XTo2X[1,0],uncertaintyVel[i][0],uncertaintyVel[i][1]]

@@ -10,7 +10,7 @@ from utils import rota
 from IPython.core.debugger import set_trace
 
 class CVOManager:
-    def __init__(self, params, id, collision_range):
+    def __init__(self, params, id, collision_range, max_vel):
         # self.params = params
         # self.dt = params.dt
         self.id = id
@@ -19,7 +19,7 @@ class CVOManager:
         self.addUncertainty_ = params.add_uncertianty
         self.allKalFilters = {}
 
-        self.cvoGekko = CVOGekko(params, id, collision_range)
+        self.cvoGekko = CVOGekko(params, id, collision_range, max_vel)
 
         self.gps_pos_stdev = params.gps_pos_stdev
         self.gps_vel_stdev = params.gps_vel_stdev
