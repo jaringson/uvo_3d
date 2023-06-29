@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.linalg import inv
+from numpy.linalg import inv, norm
 
 from IPython.core.debugger import set_trace
 import params
@@ -14,8 +14,12 @@ class GenKalmanFilter:
 
         self.sigmaR_pos_ = params.sigmaR_pos
         self.sigmaR_vel_ = params.sigmaR_vel
-        # self.sigmaR_range_ = params.sigmaR_range
-        # self.sigmaR_zenith_ = params.sigmaR_zenith
+        self.sigmaR_range_ = params.sigmaR_range
+        self.sigmaR_zenith_ = params.sigmaR_zenith
+        self.sigmaR_rangeDot_ = params.sigmaR_rangeDot
+        self.sigmaR_zenithDot_ = params.sigmaR_zenithDot
+
+        self.radarPos = params.radarPos
 
         self.id_ = id
 
@@ -48,6 +52,7 @@ class GenKalmanFilter:
         self.P_[2,2] = 1.0
         self.P_[3,3] = 1.0
 
+
     def predict(self):
         self.xhat_ = self.A_ @ self.xhat_
         self.P_ = self.A_ @ self.P_ @ self.A_.T + self.Q_
@@ -67,10 +72,44 @@ class GenKalmanFilter:
         eye_n = np.eye(self.n_)
 
         self.P_ = (eye_n - K@C)@self.P_@(eye_n - K@C).T + K@R@K.T
+
+    def get_z(self, xIn):
+
+
+        x = xIn[0,0] - self.radarPos[0,0]
+        y = xIn[1,0] - self.radarPos[1,0]
+        xDot = xIn[2,0]
+        yDot = xIn[3,0]
+
+        range = np.sqrt(x**2 + y**2)
+        zenith = np.arctan2(y, x)
+
+        rangeDot = (x*xDot + y*yDot) / np.sqrt(x**2+y**2)
+        zenithDot = (x*yDot - y*xDot) / (x**2+y**2)
+
+        return np.array([[range],[zenith],[rangeDot],[zenithDot]])
+
+    def update_radar(self, measurement):
+        # radarMeasurement = measurement[0:2] - radarPos[0:2]
+        #
+        # range = norm(radarMeasurement)
+        # zenith = np.arctan2(radarMeasurement[0], radarMeasurement[1])[0]
+        # rangeDot =
+        R = self.build_polar_R()
+        H = self.build_polar_H()
+        C = self.C_vel_
+
+        K = self.P_ @ H.T @ inv(H@self.P_@H.T + R)
+        # self.xhat_ = self.xhat_ + K@(measurement -C@self.xhat_)
+        self.xhat_ = self.xhat_ + K@(self.get_z(measurement) - self.get_z(C@self.xhat_))
+        eye_n = np.eye(self.n_)
+
+        self.P_ = (eye_n - K@H)@self.P_ #@(eye_n - K@H).T + K@R@K.T
+        # print('here')
+        # print(self.xhat_)
+        # print(measurement)
         # set_trace()
 
-    def update_radar(self):
-        throw('Not Implemented')
 
     def build_A(self):
         A = np.zeros((self.n_, self.n_))
@@ -130,3 +169,35 @@ class GenKalmanFilter:
         R_whole = Im_pos * self.sigmaR_pos_**2 + Im_vel * self.sigmaR_vel_**2
 
         return R_whole[0:m_request,0:m_request]
+
+    def build_polar_R(self):
+        R = np.diag([self.sigmaR_range_**2,
+                        self.sigmaR_zenith_**2,
+                        self.sigmaR_rangeDot_**2,
+                        self.sigmaR_zenithDot_**2])
+        # set_trace()
+        return R
+
+    def build_polar_H(self):
+
+        # x = r*np.cos(z)
+        # y = r*np.sin(z)
+        # xDot = rDot*np.cos(z) - r*zDot*np.sin(z)
+        # yDot = rDot*np.sin(z) + r*zDot*np.cos(z)
+
+        x = self.xhat_[0,0]-self.radarPos[0,0]
+        y = self.xhat_[1,0]-self.radarPos[1,0]
+        xDot = self.xhat_[2,0]
+        yDot = self.xhat_[3,0]
+
+        H = np.array([[x/(x**2+y**2)**0.5, y/(x**2+y**2)**0.5, 0, 0, 0, 0, 0, 0],
+                    [-y/(x**2+y**2), x/(x**2+y**2), 0, 0, 0, 0, 0, 0],
+                    [-y*(yDot*x-xDot*y)/(x**2+y**2)**1.5, -x*(xDot*y-yDot*x)/(x**2+y**2)**1.5, x/(x**2+y**2)**0.5, y/(x**2+y**2)**0.5, 0, 0, 0, 0],
+                    [-(yDot*x**2-2*xDot*y*x-yDot*y**2)/(x**2+y**2)**2, (xDot*y**2-2*yDot*x*y-xDot*x**2)/(x**2+y**2)**2, -y/(x**2+y**2), x/(x**2+y**2), 0, 0, 0, 0],
+                        ])
+
+        # set_trace()
+        # print(H)
+        # set_trace()
+
+        return H

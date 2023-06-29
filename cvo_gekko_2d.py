@@ -107,8 +107,8 @@ class CVOGekko:
                     continue
                 apexInEllipsoid = False
 
-            if failed:
-                print('id: ', self.id, ' other: ', i, ' start_a: ', start_a, ' a : ', a, ' norm: ', norm(from1XTo2X))
+            # if failed:
+            #     print('id: ', self.id, ' other: ', i, ' start_a: ', start_a, ' a : ', a, ' norm: ', norm(from1XTo2X))
 
             ''' Velocity Uncertainty '''
             data = [a,b,from1XTo2X[0,0],from1XTo2X[1,0],uncertaintyVel[i][0],uncertaintyVel[i][1]]
