@@ -163,7 +163,7 @@ class CVOManager:
                 if self.addUncertainty_:
                     # print(P_mat[0,0], P_mat[1,1], P_mat[2,2], P_mat[3,3])
                     uncertPos.append( [3.0*P_mat[0,0]**0.5, 3.0*P_mat[1,1]**0.5] )
-                    uncertVel.append( [3.0*P_mat[2,2]**0.5+self.con_vel_uncertain_, 3.0*P_mat[3,3]**0.5+self.con_vel_uncertain_] )
+                    uncertVel.append( [3.0*P_mat[2,2]**0.5, 3.0*P_mat[3,3]**0.5] )
 
                 else:
                     uncertPos.append( [0,0] )

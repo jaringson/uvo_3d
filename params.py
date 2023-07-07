@@ -5,11 +5,11 @@ t_start = 0
 dt = 0.01
 sim_t =  30
 # t_plot = 1.0
-is_2d = True
+is_2d = False
 
 cvo_dt = 0.1
 
-num_quads = 10
+num_quads = 40
 
 outfile_name = 'outfile.json'
 
@@ -29,16 +29,18 @@ gps_vel_stdev = 0.1
 
 radar_range_stdev = 0.6
 radar_zenith_stdev = 0.01745
+radar_azimuth_stdev = 0.01745
 radar_rangeDot_stdev = 0.6/10.0
 radar_zenithDot_stdev = 0.01745/10.0
+radar_azimuthDot_stdev = 0.01745/10.0
 
 con_vel_uncertain = 0.0
 
 ''' Gen Kalman Filter '''
 sigmaQ_vel = 3
 alphaQ_vel = 2.5
-sigmaQ_jrk = 1.0 #0075
-alphaQ_jrk = 1.0
+sigmaQ_jrk = 1.5 #0075
+alphaQ_jrk = 1.5
 
 sigmaR_pos = 2.0
 sigmaR_vel = 0.7
@@ -47,8 +49,10 @@ radar_measurement = True
 
 sigmaR_range = 3*0.6
 sigmaR_zenith =  3*0.01745
-sigmaR_rangeDot = 3*0.6
-sigmaR_zenithDot =  3*0.01745/10.0
+sigmaR_azimuth =  3*0.01745
+sigmaR_rangeDot = 10*0.6/10.0
+sigmaR_zenithDot =  10*0.01745/10.0
+sigmaR_azimuthDot =  10*0.01745/10.0
 
 radarPos = np.array([[0.0],
                     [-60.0],

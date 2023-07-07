@@ -10,9 +10,13 @@ def get_random_position(startRadius):
     randTheta = np.random.random() * (max-min) + min
     randPhi = np.random.random() * (max-min) + min
 
-    x = startRadius*np.random.uniform(-1,1) #startRadius*np.cos(randPhi)*np.cos(randTheta)
-    y = startRadius*np.random.uniform(-1,1) #startRadius*np.cos(randPhi)*np.sin(randTheta)
-    z = startRadius*np.random.uniform(-1,1) #startRadius*np.sin(randPhi)
+    # x = startRadius*np.random.uniform(-1,1) #startRadius*np.cos(randPhi)*np.cos(randTheta)
+    # y = startRadius*np.random.uniform(-1,1) #startRadius*np.cos(randPhi)*np.sin(randTheta)
+    # z = startRadius*np.random.uniform(-1,1) #startRadius*np.sin(randPhi)
+
+    x = startRadius*np.cos(randPhi)*np.cos(randTheta)
+    y = startRadius*np.cos(randPhi)*np.sin(randTheta)
+    z = startRadius*np.sin(randPhi)
 
     return np.array([[x], [y], [z]]) # np.array([[-10.0], [10.0], [0.0]]) #
 
@@ -27,9 +31,9 @@ def get_waypoints(startRadius, numVehicles, vehicleRadius, seed=int(time.time())
 
     allPositions.append(point)
     point_w_psi = np.block([[point], [0]])
-    point2 = get_random_position(startRadius)
-    while norm(point-point2) < 1.75*startRadius:
-        point2 = get_random_position(startRadius)
+    point2 = -point + np.random.normal(0, 1, point.shape) #get_random_position(startRadius)
+    # while norm(point-point2) < 1.95*startRadius:
+    #     point2 = get_random_position(startRadius)
     point2_w_psi = np.block([[point2], [0]])
     dir = (point2_w_psi - point_w_psi)
     dir /= norm(dir)
@@ -56,9 +60,9 @@ def get_waypoints(startRadius, numVehicles, vehicleRadius, seed=int(time.time())
 
         allPositions.append(point)
         point_w_psi = np.block([[point], [0]])
-        point2 = get_random_position(startRadius)
-        while norm(point-point2) < 1.75*startRadius:
-            point2 = get_random_position(startRadius)
+        point2 = -point + np.random.normal(0, 1, point.shape) #get_random_position(startRadius)
+        # while norm(point-point2) < 1.95*startRadius:
+        #     point2 = get_random_position(startRadius)
         point2_w_psi = np.block([[point2], [0]])
         dir = (point2_w_psi - point_w_psi)
         dir /= norm(dir)

@@ -10,7 +10,7 @@ from utils import rota
 from IPython.core.debugger import set_trace
 
 class CVOManager:
-    def __init__(self, params, id, collision_range):
+    def __init__(self, params, id, collision_range, max_vel):
         # self.params = params
         # self.dt = params.dt
         self.id = id
@@ -19,10 +19,23 @@ class CVOManager:
         self.addUncertainty_ = params.add_uncertianty
         self.allKalFilters = {}
 
-        self.cvoGekko = CVOGekko(params, id, collision_range)
+        self.cvoGekko = CVOGekko(params, id, collision_range, max_vel)
 
         self.gps_pos_stdev = params.gps_pos_stdev
         self.gps_vel_stdev = params.gps_vel_stdev
+
+        self.radar_range_stdev_ = params.radar_range_stdev
+        self.radar_rangeDot_stdev_ = params.radar_rangeDot_stdev
+        self.radar_zenith_stdev_ = params.radar_zenith_stdev
+        self.radar_zenithDot_stdev_ = params.radar_zenithDot_stdev
+        self.radar_azimuth_stdev_ = params.radar_azimuth_stdev
+        self.radar_azimuthDot_stdev_ = params.radar_azimuthDot_stdev
+
+        self.radarPos_ = params.radarPos
+
+        self.radar_meas_ = params.radar_measurement
+
+        self.con_vel_uncertain_ = params.con_vel_uncertain
 
     def get_kal_data(self, allKalStates, allKalCovariance):
         # print('get data ', self.id, " ", self.allKalFilters)
@@ -31,9 +44,62 @@ class CVOManager:
         if 1 not in allKalStates:
             allKalStates[1] = []
             allKalCovariance[1] = []
-        allKalStates[1].append(self.allKalFilters[1].xhat_.flatten().tolist())
+
+        append_val = self.allKalFilters[1].xhat_
+        allKalStates[1].append(append_val.flatten().tolist())
 
         allKalCovariance[1].append(np.diag(self.allKalFilters[1].P_).tolist())
+
+    def get_radar_uncertainty(self, p, v):
+        x = p[0,0] - self.radarPos_[0,0]
+        y = p[1,0] - self.radarPos_[1,0]
+        z = p[2,0] - self.radarPos_[2,0]
+        xDot = v[0,0]
+        yDot = v[1,0]
+        zDot = v[2,0]
+
+        range = np.sqrt(x**2 + y**2 + z**2)
+        rangeHat = range + rndnorm(0, self.radar_range_stdev_)
+        zenith = np.arctan2(y, x)
+        zenithHat = zenith + rndnorm(0, self.radar_zenith_stdev_)
+
+        flatRange = np.sqrt(x**2 + y**2)
+        flatRangeDot = (x*xDot + y*yDot)/ flatRange
+        azimuth = np.arctan2(z,flatRange)
+        azimuthHat = azimuth + rndnorm(0, self.radar_azimuth_stdev_)
+
+
+        # range = np.sqrt(mav_x**2 + mav_y**2)
+        # zenith = np.arctan2(mav_y, mav_x)
+
+        p_hat = np.array([
+                        [rangeHat*np.cos(zenithHat)*np.cos(azimuthHat)],
+                        [rangeHat*np.sin(zenithHat)*np.cos(azimuthHat)],
+                        [rangeHat*np.sin(azimuthHat)]
+                        ])
+
+        rangeDot = (x*xDot + y*yDot + z*zDot) / range
+        rangeDotHat = rangeDot + rndnorm(0, self.radar_rangeDot_stdev_)
+        zenithDot = (x*yDot - y*xDot) / (x**2+y**2)
+        zenithDotHat = zenithDot + rndnorm(0, self.radar_zenithDot_stdev_)
+        azimuthDot = (flatRange*zDot - z*flatRangeDot) / (z**2+flatRange**2)
+        azimuthDotHat = azimuthDot + rndnorm(0, self.radar_azimuthDot_stdev_)
+
+        v_hat = np.array([
+                        [rangeDotHat*np.cos(zenithHat)*np.cos(azimuthHat)
+                            -rangeHat*zenithDotHat*np.sin(zenithHat)*np.cos(azimuthHat)
+                            -rangeHat*azimuthDotHat*np.cos(zenithHat)*np.sin(azimuthHat)],
+                        [rangeDotHat*np.sin(zenithHat)*np.cos(azimuthHat)
+                            +rangeHat*zenithDotHat*np.cos(zenithHat)*np.cos(azimuthHat)
+                            -rangeHat*azimuthDotHat*np.sin(zenithHat)*np.sin(azimuthHat)],
+                        [rangeDotHat*np.sin(azimuthHat)
+                            +rangeHat*azimuthDotHat*np.cos(azimuthHat)]
+                        ])
+
+        # print(p, p_hat)
+        # print(v, v_hat)
+        # set_trace()
+        return p_hat + self.radarPos_, v_hat
 
     def propagate(self):
         for quadKey in self.allKalFilters:
@@ -59,6 +125,11 @@ class CVOManager:
             ''' Add uncertainty to the data '''
             av2Pos = allQuads[quadKey].x_ + rndnorm(0, self.gps_pos_stdev, size=(3,1))
             av2Vel = rota(allQuads[quadKey].q_, allQuads[quadKey].v_) + rndnorm(0, self.gps_vel_stdev, size=(3,1))
+            if self.radar_meas_:
+                av2Pos, av2Vel = self.get_radar_uncertainty(allQuads[quadKey].x_, rota(allQuads[quadKey].q_, allQuads[quadKey].v_))
+            # directionalV = np.block([[rndnorm(0, self.gps_vel_stdev, size=(1,1))],[0], [0]])
+            # av2Vel = rota(allQuads[quadKey].q_, allQuads[quadKey].v_) + rota(allQuads[quadKey].q_, directionalV)
+
 
             if self.add_kalman_:
 
@@ -84,10 +155,22 @@ class CVOManager:
                 elif np.random.random() < self.drop_prob_:
                     ''' Update Kalman filter if communication isn't dropped '''
                     inX = np.block([[av2Pos], [av2Vel]])
-                    self.allKalFilters[quadKey].update(inX)
+                    if self.radar_meas_:
+                        self.allKalFilters[quadKey].update_radar(inX)
+                    else:
+                        self.allKalFilters[quadKey].update(inX)
+
 
                 xhat = self.allKalFilters[quadKey].xhat_
+                # xhat[0:3] = xhat[0:3] + self.radarPos_
                 P_mat = self.allKalFilters[quadKey].P_
+                # if quadKey == 1:
+                #     print(xhat)
+                #     print(allQuads[quadKey].x_)
+                #     print(av2Pos)
+                #     # print(rota(allQuads[quadKey].q_, allQuads[quadKey].v_))
+                #     # print(av2Vel)
+                #     set_trace()
 
                 inRangePos.append(xhat[0:3])
                 inRangeVel.append(xhat[3:6])

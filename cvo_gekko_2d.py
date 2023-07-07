@@ -35,26 +35,14 @@ class CVOGekko:
             uncertaintyPos, uncertaintyVel):
         numOther = len(inRangePos)
 
-        # av1BuffVel = np.zeros((2,1))
-        # trigger = False
-        # if self.bufferOn:
-        #     av1BuffVel, trigger = self.calculate_buffer(av1Xo, inRangePos, uncertaintyPos)
-        #     # av1BuffVel = av1BuffVel / (0.5*norm(av1VelDes))
-        #
-        # if trigger:
-        #     print('trigger')
-        #     # set_trace()
-        #     # return av1BuffVel[0,0], av1BuffVel[1,0]
-        #
-        # av1VelDes = (2.0*av1VelDes + av1BuffVel)/2.0;
 
         vdx = av1VelDes[0,0]
         vdy = av1VelDes[1,0]
 
         m = gekko(remote=False)
 
-        sx = m.Var(av1VelDes[0,0], name='sx')
-        sy = m.Var(av1VelDes[1,0], name='sy')
+        sx = m.Var(vdx, name='sx')
+        sy = m.Var(vdy, name='sy')
 
         y1 = m.Param(1e4)
         y2 = m.Param(1e-1)
@@ -82,8 +70,8 @@ class CVOGekko:
 
 
             ''' Position Uncertainty '''
-            a = uncertaintyPos[i][0]+2.0*self.collisionRadius#+uncertaintyVel[i][0]
-            b = uncertaintyPos[i][1]+2.0*self.collisionRadius#+uncertaintyVel[i][1]
+            a = uncertaintyPos[i][0]+2.0*self.collisionRadius
+            b = uncertaintyPos[i][1]+2.0*self.collisionRadius
             j_pos = from1XTo2X[0,0]
             k_pos = from1XTo2X[1,0]
 
@@ -111,19 +99,19 @@ class CVOGekko:
             #     print('id: ', self.id, ' other: ', i, ' start_a: ', start_a, ' a : ', a, ' norm: ', norm(from1XTo2X))
 
             ''' Velocity Uncertainty '''
-            data = [a,b,from1XTo2X[0,0],from1XTo2X[1,0],uncertaintyVel[i][0],uncertaintyVel[i][1]]
-            # print(data)
-            vel_translate = fsolve(self.solve_equations, (from1XTo2X[0,0],from1XTo2X[1,0]), args=data )
-            vel_translate = vel_translate.reshape((2,1))
-            # set_trace()
-            if abs(angle_between(-vel_translate.T, from1XTo2X)) < abs(angle_between(vel_translate.T, from1XTo2X)):
-                vel_translate = -vel_translate
-                print('switch')
-            # print(vel_translate)
-            # print(norm(self.solve_equations(vel_translate, data)))
-            # set_trace()
-            if norm(self.solve_equations(vel_translate, data)) < 1e-4:
-                if norm(from1XTo2X) < 5.0*self.max_vel:
+            if norm(from1XTo2X) < 5.0*self.max_vel:
+                data = [a,b,from1XTo2X[0,0],from1XTo2X[1,0],uncertaintyVel[i][0],uncertaintyVel[i][1]]
+                # print(data)
+                vel_translate = fsolve(self.solve_equations, (from1XTo2X[0,0],from1XTo2X[1,0]), args=data )
+                vel_translate = vel_translate.reshape((2,1))
+                # set_trace()
+                if abs(angle_between(-vel_translate.T, from1XTo2X)) < abs(angle_between(vel_translate.T, from1XTo2X)):
+                    vel_translate = -vel_translate
+                    print('switch')
+                # print(vel_translate)
+                # print(norm(self.solve_equations(vel_translate, data)))
+                # set_trace()
+                if norm(self.solve_equations(vel_translate, data)) < 1e-4:
                     # print(angle_between(vel_translate.T, from1XTo2X))
                     apexOfCollisionCone = apexOfCollisionCone - vel_translate
                     centerOfEllipsoid = centerOfEllipsoid - vel_translate
@@ -162,8 +150,6 @@ class CVOGekko:
             constraint = m.Intermediate((val.T@M@val)[0,0])
             # allContraints.append(constraint)
 
-
-
             m.Equation( constraint >= 0  )
 
 
@@ -198,9 +184,6 @@ class CVOGekko:
                 n = self.max_vel #norm(av1VelDes)
                 sx.value = [np.random.uniform(-1,1)*n]
                 sy.value = [np.random.uniform(-1,1)*n]
-
-                y1.value /= 1.0
-                y2.value /= 1.0
 
                 solve_success = False
                 # print('Try again. id: ', self.id, " y1: ", y1.value, " y2: ", y2.value)

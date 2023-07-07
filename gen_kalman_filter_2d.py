@@ -90,11 +90,7 @@ class GenKalmanFilter:
         return np.array([[range],[zenith],[rangeDot],[zenithDot]])
 
     def update_radar(self, measurement):
-        # radarMeasurement = measurement[0:2] - radarPos[0:2]
-        #
-        # range = norm(radarMeasurement)
-        # zenith = np.arctan2(radarMeasurement[0], radarMeasurement[1])[0]
-        # rangeDot =
+
         R = self.build_polar_R()
         H = self.build_polar_H()
         C = self.C_vel_
@@ -105,10 +101,6 @@ class GenKalmanFilter:
         eye_n = np.eye(self.n_)
 
         self.P_ = (eye_n - K@H)@self.P_ #@(eye_n - K@H).T + K@R@K.T
-        # print('here')
-        # print(self.xhat_)
-        # print(measurement)
-        # set_trace()
 
 
     def build_A(self):
