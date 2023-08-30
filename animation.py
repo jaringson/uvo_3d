@@ -81,10 +81,10 @@ class Animation:
         ax.set_ylim3d([-maxAxis, maxAxis])
         ax.set_zlim3d([-maxAxis, maxAxis])
 
-        ax.invert_zaxis()
-        ax.invert_yaxis()
+        # ax.invert_zaxis()
+        # ax.invert_yaxis()
 
-        # ax.view_init(0, 45)
+        # ax.view_init(90, 0)
 
     def drawAll(self, allStates, idx):
         # pdb.set_trace()
