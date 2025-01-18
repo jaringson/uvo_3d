@@ -21,7 +21,7 @@ collision_range = 1500
 start_radius = 50
 
 add_kalman = True
-add_uncertianty = True
+add_uncertianty = False # True
 drop_prob = 0.8
 
 gps_pos_stdev = 1.0
@@ -63,11 +63,11 @@ tau = 0.05
 
 x_dot_P = 0.5
 x_dot_I = 0.0
-x_dot_D = 0.05
+x_dot_D = 0.15
 
 y_dot_P = 0.5
 y_dot_I = 0.0
-y_dot_D = 0.05
+y_dot_D = 0.15
 
 z_dot_P = 0.4
 z_dot_I = 0.25
@@ -79,8 +79,8 @@ psi_D = 0.0
 
 throttle_eq = 0.5
 
-max_roll = np.pi/10 #0.196
-max_pitch = np.pi/10 #
+max_roll = np.pi/2.0 #0.196
+max_pitch = np.pi/2.0 #
 max_yaw_rate = 1.5 #0.785
 max_throttle = 1.0 #0.85
 

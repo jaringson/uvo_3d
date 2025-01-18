@@ -20,8 +20,8 @@ for i in range(0, 1000):
     if params.is_2d:
         num_quads = np.random.randint(10,20)
     collision_range = np.random.random() * 100
-    max_vel = 5.0 + np.random.random() * 5.0
-    outfile = 'hardData10/run'+str(i)+'quads'+str(num_quads)+'cr'+str(trunc(collision_range))+'mv'+str(trunc(max_vel))+'.json'
+    max_vel = 2.0 + np.random.random() * 8.0
+    outfile = '3dRVO_KF1/run'+str(i)+'quads'+str(num_quads)+'cr'+str(trunc(collision_range))+'mv'+str(trunc(max_vel))+'.json'
     # current_sim = Sim()
     print(outfile)
     sim.run_sim(num_quads, collision_range, max_vel, outfile)

@@ -28,7 +28,7 @@ class Controller:
         ''' Calculate max accelerations. Assuming that equilibrium throttle produces
          1 g of acceleration and a linear thrust model, these max acceleration
          values are computed in g's as well. '''
-        max_accel_xy = np.sin(np.arccos(self.throttle_eq_)) / self.throttle_eq_ / np.sqrt(2.)
+        max_accel_xy = 10 + np.sin(np.arccos(self.throttle_eq_)) / self.throttle_eq_ / np.sqrt(2.)
 
         tau = params.tau
 
@@ -50,7 +50,7 @@ class Controller:
         P = params.psi_P
         I = params.psi_I
         D = params.psi_D
-        self.PID_psi_ = SimplePID(P, I, D, np.Inf, -np.Inf, tau)
+        self.PID_psi_ = SimplePID(P, I, D, np.inf, -np.inf, tau)
 
         max_tau_x = params.max_tau_x
         max_tau_y = params.max_tau_y

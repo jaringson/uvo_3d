@@ -51,12 +51,14 @@ def run_sim(num_quads, collision_range, max_vel, filename):
 
     num_quads = num_quads
     radius = P.start_radius
-    seed = 1 #int(time.time())
+    seed = int(time.time())
 
     waypoints, allStartPositions = get_waypoints(radius, num_quads, P.collision_radius, seed=seed)
-    print('waypoints: ', waypoints)
+    #print('waypoints: ', waypoints)
     print('Num of Vehicles: ', num_quads)
-
+    print('collision range: ', collision_range)
+    print('max velocity: ', max_vel)
+    print('seed: ', seed)
 
     allControllers = {}
     allVelCon = {}
@@ -74,9 +76,9 @@ def run_sim(num_quads, collision_range, max_vel, filename):
 
     for i in range(num_quads):
         id = i
-        quad = QuadDynamics(P, id, allStartPositions[id])
+        quad = QuadDynamics(P, id, allStartPositions[id], waypoints[i])
         controller = Controller(P, id)
-        cvoManager = CVOManager(P, id, collision_range)
+        cvoManager = CVOManager(P, id, collision_range, max_vel)
         wpManager = WPManager(P, id, waypoints[id], max_vel)
 
         allQuads[id] = quad
@@ -92,7 +94,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
     # dataPlot = dataPlotter()
     # plt.waitforbuttonpress()
 
-    pbar = tqdm(total = (P.sim_t - P.t_start)/P.dt)
+    #pbar = tqdm(total = (P.sim_t - P.t_start)/P.dt)
 
     t = P.t_start  # time starts at t_start
     t_control = t
@@ -142,9 +144,9 @@ def run_sim(num_quads, collision_range, max_vel, filename):
                 y = allQuads[id].update(u)  # propagate system
                 allStates[id].append(allQuads[id].state.flatten().tolist())
 
-            allCVOManagers[0].get_kal_data(allKalStates, allKalCovariance)
+            #allCVOManagers[0].get_kal_data(allKalStates, allKalCovariance)
 
-            pbar.update(1)
+            #pbar.update(1)
             t = t + P.dt  # advance time by dt
         # update data plots
         # dataPlot.update(t, allQuads[0].state, u)
@@ -153,20 +155,20 @@ def run_sim(num_quads, collision_range, max_vel, filename):
         plt.pause(0.0001)
 
 
-    pbar.close()
+    #pbar.close()
 
     out_file = open(filename, "w")
     json.dump(allStates, out_file, indent=3)
     out_file.close()
 
-    out_file2 = open('data/kaldata.json', "w")
-    json.dump(allKalStates, out_file2, indent=3)
-    out_file2.close()
+    #out_file2 = open('data/kaldata.json', "w")
+    #json.dump(allKalStates, out_file2, indent=3)
+    #out_file2.close()
 
-    out_file3 = open('data/kalcov.json', "w")
-    json.dump(allKalCovariance, out_file3, indent=3)
-    out_file3.close()
+    #out_file3 = open('data/kalcov.json', "w")
+    #json.dump(allKalCovariance, out_file3, indent=3)
+    #out_file3.close()
 
 
 if __name__ == "__main__":
-    run_sim(P.num_quads, P.collision_range, P.max_vel, 'data/data.json')
+    run_sim(P.num_quads, P.collision_range, P.max_vel, 'data.json')

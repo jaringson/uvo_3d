@@ -11,7 +11,7 @@ from multiprocessing import Pool
 
 data = []
 
-with open("data/data.json", "r") as read_it:
+with open("data.json", "r") as read_it:
 # with open("superData/2dData1/run5quads11cr94.05mv5.75.json", "r") as read_it:
     data = json.load(read_it)
 

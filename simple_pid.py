@@ -22,7 +22,7 @@ class SimplePID:
             ret_u = self.min_
         return ret_u
 
-    def computePID(self, desired, current, dt, x_dot=np.Inf):
+    def computePID(self, desired, current, dt, x_dot=np.inf):
         error = desired - current
 
         if dt < 1e-5 or abs(error) > 1e8:
