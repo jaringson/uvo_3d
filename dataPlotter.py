@@ -4,6 +4,7 @@ import numpy as np
 from utils import roll, pitch, yaw
 
 plt.ion()  # enable interactive drawing
+plt.rcParams.update({'font.size': 20})
 
 
 class dataPlotter:
@@ -13,7 +14,7 @@ class dataPlotter:
 
     def __init__(self):
         # Number of subplots = num_of_rows*num_of_cols
-        self.num_rows = 4    # Number of subplot rows
+        self.num_rows = 1   # Number of subplot rows
         self.num_cols = 1    # Number of subplot columns
 
         # Crete figure and axes handles
@@ -37,11 +38,11 @@ class dataPlotter:
 
         # create a handle for every subplot.
         self.handle = []
-        self.handle.append(myPlot(self.ax[0], ylabel='pos', title='Data'))
-        self.handle.append(myPlot(self.ax[1], ylabel='vel', title='Data'))
+        # self.handle.append(myPlot(self.ax[0], ylabel='pos', title='Data'))
+        self.handle.append(myPlot(self.ax, xlabel='time (s)', ylabel='vel (m/s)', legend=['vx','vy','vz']))
         # self.handle.append(myPlot(self.ax[1], ylabel='x2'))
-        self.handle.append(myPlot(self.ax[2], ylabel='angles', xlabel='t(s)'))
-        self.handle.append(myPlot(self.ax[3], ylabel='u', xlabel='t(s)'))
+        # self.handle.append(myPlot(self.ax[2], ylabel='angles', xlabel='t(s)'))
+        # self.handle.append(myPlot(self.ax[3], ylabel='u', xlabel='t(s)'))
         # self.handle.append(myPlot(self.ax[3], ylabel='slack'))
         # self.handle.append(myPlot(self.ax[4], ylabel='BLF(V)'))
         # self.handle.append(myPlot(self.ax[5], xlabel='t(s)', ylabel='CBF(B)'))
@@ -79,11 +80,11 @@ class dataPlotter:
         # self.B_history.append(B)
 
         # update the plots with associated histories
-        self.handle[0].update(self.time_history, [self.x_history, self.y_history, self.z_history])
-        self.handle[1].update(self.time_history, [self.vx_history, self.vy_history, self.vz_history])
-        self.handle[2].update(self.time_history, [self.phi_history, self.theta_history,
-                                                    self.psi_history])
-        self.handle[3].update(self.time_history, [self.u1_history, self.u2_history, self.u3_history, self.u4_history])
+        self.handle[0].update(self.time_history, [self.vx_history, self.vy_history, self.vz_history])
+        # self.handle[0].update(self.time_history, [self.x_history, self.y_history, self.z_history])
+        # self.handle[2].update(self.time_history, [self.phi_history, self.theta_history,
+        #                                             self.psi_history])
+        # self.handle[3].update(self.time_history, [self.u1_history, self.u2_history, self.u3_history, self.u4_history])
 
     def show(self):
         self.fig.show()
@@ -112,7 +113,7 @@ class myPlot:
         # to the first line object, etc.
         # 'b' - blue, 'g' - green, 'r' - red, 'c' - cyan, 'm' - magenta
         # 'y' - yellow, 'k' - black
-        self.line_styles = ['-', '-', '--', '-.', ':']
+        self.line_styles = ['-', '-.', '--', '-.', ':']
         # A list of line styles.  The first line style in the list
         # corresponds to the first line object.
         # '-' solid, '--' dashed, '-.' dash_dot, ':' dotted
@@ -141,7 +142,7 @@ class myPlot:
                                         data[i],
                                         color=self.colors[np.mod(i, len(self.colors) - 1)],
                                         ls=self.line_styles[np.mod(i, len(self.line_styles) - 1)],
-                                        label=self.legend if self.legend != None else None))
+                                        label=self.legend[i] if self.legend != None else None))
                 self.ax.add_line(self.line[i])
             self.init = False
             # add legend if one is specified

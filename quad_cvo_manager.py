@@ -37,18 +37,31 @@ class CVOManager:
 
         self.con_vel_uncertain_ = params.con_vel_uncertain
 
-    def get_kal_data(self, allKalStates, allKalCovariance):
+        self.init_kal = False
+        self.len_x = 12
+        self.len_P = 12
+
+    def get_kal_data(self, allKalStates, allKalCovariance, allKalTime, t):
         # print('get data ', self.id, " ", self.allKalFilters)
         # for quadKey in self.allKalFilters:
         # print(self.allKalFilters[1].P_)
-        if 1 not in allKalStates:
+        if not self.init_kal:
             allKalStates[1] = []
             allKalCovariance[1] = []
+            self.init_kal = True
+        if 1  in self.allKalFilters:
 
-        append_val = self.allKalFilters[1].xhat_
-        allKalStates[1].append(append_val.flatten().tolist())
+            append_val = self.allKalFilters[1].xhat_.flatten().tolist()
+            # self.len_val = len(append_val)
+            allKalStates[1].append(append_val)
 
-        allKalCovariance[1].append(np.diag(self.allKalFilters[1].P_).tolist())
+            append_P = np.diag(self.allKalFilters[1].P_).tolist()
+            # self.len_P = len(append_P)
+            allKalCovariance[1].append(append_P)
+
+            allKalTime.append(t)
+
+
 
     def get_radar_uncertainty(self, p, v):
         x = p[0,0] - self.radarPos_[0,0]

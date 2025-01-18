@@ -15,6 +15,8 @@ else:
 
 from dataPlotter import dataPlotter
 from quad_control import Controller
+# from quad_control_fpre import Controller
+# from quad_control_lqr import Controller
 from quad_wp_manager import WPManager
 
 import json
@@ -51,7 +53,8 @@ def run_sim(num_quads, collision_range, max_vel, filename):
 
     num_quads = num_quads
     radius = P.start_radius
-    seed = 1 #int(time.time())
+    seed = int(time.time()) #1687367575
+    print("Seed: ", seed)
 
     waypoints, allStartPositions = get_waypoints(radius, num_quads, P.collision_radius, seed=seed)
     print('waypoints: ', waypoints)
@@ -64,6 +67,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
     allStates = {}
     allKalStates = {}
     allKalCovariance = {}
+    allKalTime = []
 
 
     allWPManagers = {}
@@ -74,9 +78,10 @@ def run_sim(num_quads, collision_range, max_vel, filename):
 
     for i in range(num_quads):
         id = i
-        quad = QuadDynamics(P, id, allStartPositions[id])
+        quad = QuadDynamics(P, id, allStartPositions[id], waypoints[i])
         controller = Controller(P, id)
-        cvoManager = CVOManager(P, id, collision_range)
+        # controller = Controller(P, id, quad)
+        cvoManager = CVOManager(P, id, collision_range, max_vel)
         wpManager = WPManager(P, id, waypoints[id], max_vel)
 
         allQuads[id] = quad
@@ -118,7 +123,9 @@ def run_sim(num_quads, collision_range, max_vel, filename):
             wpManager = item[2]
             cvoManager = item[3]
             quad = item[4]
-
+        
+            # desiredVelocity = np.array([[10],[0],[0]])
+            # allVelCon[id] = desiredVelocity
             allVelCon[id] = velCon
             allWPManagers[id] = wpManager
             allCVOManagers[id] = cvoManager
@@ -129,6 +136,7 @@ def run_sim(num_quads, collision_range, max_vel, filename):
         #     vel_d = allWPManagers[id].updateWaypointManager(allQuads[id].x_)
         #     vel_c = allCVOManagers[id].get_best_vel(allQuads, t, vel_d)
         #     allVelCon[id] = vel_c #np.array([[-10],[0],[0]])
+        #     # allVelCon[id] = np.array([[1],[0],[0]])
 
 
 
@@ -138,11 +146,12 @@ def run_sim(num_quads, collision_range, max_vel, filename):
             for id in range(len(allQuads)):
                 allCVOManagers[id].propagate()
                 # set_trace()
-                u = allControllers[id].computeControl(allQuads[id].state, P.dt, allVelCon[id])
+                u = allControllers[id].computeControl(allQuads[id].state, P.dt, allVelCon[id], t)
                 y = allQuads[id].update(u)  # propagate system
                 allStates[id].append(allQuads[id].state.flatten().tolist())
 
-            allCVOManagers[0].get_kal_data(allKalStates, allKalCovariance)
+            allCVOManagers[0].get_kal_data(allKalStates, allKalCovariance, allKalTime, t)
+
 
             pbar.update(1)
             t = t + P.dt  # advance time by dt
@@ -150,10 +159,11 @@ def run_sim(num_quads, collision_range, max_vel, filename):
         # dataPlot.update(t, allQuads[0].state, u)
 
         # the pause causes the figure to display during simulation
-        plt.pause(0.0001)
+        # plt.pause(0.0001)
 
 
-    pbar.close()
+    # pbar.close()
+    # plt.waitforbuttonpress()
 
     out_file = open(filename, "w")
     json.dump(allStates, out_file, indent=3)
@@ -166,6 +176,10 @@ def run_sim(num_quads, collision_range, max_vel, filename):
     out_file3 = open('data/kalcov.json', "w")
     json.dump(allKalCovariance, out_file3, indent=3)
     out_file3.close()
+
+    out_file4 = open('data/kaltime.json', "w")
+    json.dump(allKalTime, out_file4, indent=3)
+    out_file4.close()
 
 
 if __name__ == "__main__":

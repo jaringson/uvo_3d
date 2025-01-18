@@ -28,7 +28,7 @@ class Controller:
         ''' Calculate max accelerations. Assuming that equilibrium throttle produces
          1 g of acceleration and a linear thrust model, these max acceleration
          values are computed in g's as well. '''
-        max_accel_xy = np.sin(np.arccos(self.throttle_eq_)) / self.throttle_eq_ / np.sqrt(2.)
+        max_accel_xy = np.sin(np.arccos(self.throttle_eq_)) / self.throttle_eq_ / np.sqrt(2.) + 10
 
         tau = params.tau
 
@@ -147,7 +147,7 @@ class Controller:
     #     return ret_u
 
 
-    def computeControl(self, state, dt, vel_c, psi_c = 0):
+    def computeControl(self, state, dt, vel_c, t, psi_c = 0):
         if dt <= 1e-8:
             return
 
@@ -206,6 +206,7 @@ class Controller:
         ay = self.PID_y_dot_.computePID(y_dot_c, pydot, dt)
         az = self.PID_z_dot_.computePID(z_dot_c, pddot, dt)
         # print('ax: ', ax)
+        # set_trace()
 
         ''' Compute throttle commanded
          Model inversion (m[ax;ay;az] = m[0;0;g] + R'[0;0;-T] '''
@@ -231,7 +232,8 @@ class Controller:
         tau_y = self.PID_pitch_.computePID(theta_c, theta, dt, omega_[1,0])
         tau_z = self.PID_yaw_rate_.computePID(r_c, omega_[2,0], dt)
 
-        ret_u = np.array([[tau_x], [tau_y], [tau_z], [throttle_c]])
+        # ret_u = np.array([[tau_x], [tau_y], [tau_z], [throttle_c]])
+        ret_u = np.array([[throttle_c], [tau_x], [tau_y], [tau_z]])
 
         # ret_u = np.array([[ax], [ay], [r_c], [throttle_c]])
 
@@ -240,4 +242,5 @@ class Controller:
         # print('theta_c: ', theta_c, theta)
         # print('tau: ', tau_y)
         # set_trace()
+        # print(ret_u)
         return ret_u

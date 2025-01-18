@@ -3,13 +3,13 @@ import numpy as np
 ''' Sim '''
 t_start = 0
 dt = 0.01
-sim_t =  30
+sim_t =  25
 # t_plot = 1.0
 is_2d = False
 
-cvo_dt = 0.1
+cvo_dt = 0.01
 
-num_quads = 40
+num_quads =  10
 
 outfile_name = 'outfile.json'
 
@@ -17,7 +17,7 @@ outfile_name = 'outfile.json'
 collision_radius = 1
 buffer_power = 2
 buffer_on = False
-collision_range = 1500
+collision_range = 50
 start_radius = 50
 
 add_kalman = True
@@ -63,11 +63,11 @@ tau = 0.05
 
 x_dot_P = 0.5
 x_dot_I = 0.0
-x_dot_D = 0.05
+x_dot_D = 0.15
 
 y_dot_P = 0.5
 y_dot_I = 0.0
-y_dot_D = 0.05
+y_dot_D = 0.15
 
 z_dot_P = 0.4
 z_dot_I = 0.25
@@ -79,8 +79,8 @@ psi_D = 0.0
 
 throttle_eq = 0.5
 
-max_roll = np.pi/10 #0.196
-max_pitch = np.pi/10 #
+max_roll = np.pi/2.0 #0.196
+max_pitch = np.pi/2.0 #
 max_yaw_rate = 1.5 #0.785
 max_throttle = 1.0 #0.85
 
@@ -121,3 +121,14 @@ Kp =  [0.5, 0.5, 0.5]
 max_vel = 5.0
 waypoint_threshold = 0.1
 waypoint_velocity_threshold = 0.5
+
+
+''' LQR/FPRE '''
+lqr_max_pos_error = 0.5
+lqr_max_vel_error = 1.0
+lqr_max_ang_error = 0.3
+lqr_max_omega_error = 1.0
+
+lqr_max_throttle_error = 0.1
+
+e3 = np.array([[0.0], [0.0], [1.0]])

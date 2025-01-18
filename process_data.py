@@ -11,6 +11,7 @@ from IPython.core.debugger import set_trace
 import params
 
 from multiprocessing import Pool
+from tqdm import tqdm
 
 
 data = []
@@ -37,8 +38,9 @@ def check_collision(ij):
     return 0
 
 
-# mypath = 'superData/2dData/'
-mypath = 'superData/2dData1/'
+# mypath = 'superData/2dData4/'
+# mypath = 'superData/3dData4/'
+mypath = 'superData/3dRVO_KF1/'
 f = []
 for (dirpath, dirnames, filenames) in walk(mypath):
     # print(dirpath, dirnames, filenames)
@@ -51,7 +53,10 @@ allCollisionRange = []
 allNumVehicles = []
 allVelocities = []
 
-for file in f:
+pbar = tqdm(total = len(f))
+
+for index, file in enumerate(f):
+    pbar.update(1)
     # global data
     # global numDataPoints
     # nums = re.findall("\d+\.\d+",file)
@@ -80,7 +85,7 @@ for file in f:
 
     # print('# Collisions/vehicle: ', np.sum(collisions)/numVehicles)
     if np.sum(collisions) > 0:
-        print(mypath+file)
+        print(mypath+file, np.sum(collisions))
     allCollisionsPerVel.append(np.sum(collisions)/numVehicles)
     allCollisionRange.append(collisionRange)
     allNumVehicles.append(numVehicles)
@@ -93,12 +98,14 @@ for file in f:
     # print(int(nums[1]))
     # print(float(nums[2]+'.'+nums[3]))
 
+pbar.close()
 
 outData = {}
 outData['numVehicles'] = allNumVehicles
 outData['collisionsPerVel'] = allCollisionsPerVel
 outData['collisionRange'] = allCollisionRange
 outData['velocity'] = allVelocities
-outFile = open('superData/2dProcessed.json', "w")
+# outFile = open('superData/3dProcessed.json', "w")
+outFile = open('superData/3dRVO_KFProcessed.json', "w")
 json.dump(outData, outFile, indent=3)
 outFile.close()

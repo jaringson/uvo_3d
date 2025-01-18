@@ -5,6 +5,12 @@ from IPython.core.debugger import set_trace
 
 M_PI = 3.14159265359
 
+def skew(v):
+    S = np.array([[0, -v[2,0], v[1,0]],
+                  [v[2,0], 0, -v[0,0]],
+                  [-v[1,0], v[0,0], 0]])
+    return S
+
 def unit_vector(vector):
     """ Returns the unit vector of the vector.  """
     return vector / norm(vector)
@@ -35,6 +41,23 @@ def from_euler(roll, pitch, yaw):
                   [sp*ct*cs - cp*st*ss],
                   [cp*st*cs + sp*ct*ss],
                   [cp*ct*ss - sp*st*cs]])
+    return q
+
+def from_two_unit_vectors(u, v):
+    q = np.zeros((4,1))
+    # set_trace()
+    d = np.dot(u.T,v)
+    if d < 0.99999999 and d > -0.99999999:
+        invs = 1.0 / np.sqrt( 2.0 * (1.0 + d) )
+        xyz = invs * skew(u) @ v
+        q[0,0] =  0.5 / invs
+        q[1:4] = xyz
+        q = q / norm(q)
+    elif d < -0.99999999:
+        q = np.array([[0.0], [1.0], [0.0], [0.0]])
+    else:
+        q = np.array([[1.0], [0.0], [0.0], [0.0]])
+
     return q
 
 
@@ -99,6 +122,15 @@ def exp(v):
         q = q / norm(q)
     return q
 
+def log(q):
+    v = q[1:4]
+    w = q[0,0]
+    norm_v = norm(v)
+    out = np.zeros((3,1))
+    if norm_v > 1e-8:
+        out = 2.0*np.arctan2(norm_v,w) * v/norm(v)
+    return out
+    
 def otimes(quat, q):
     w1 = quat[0,0]
     x1 = quat[1,0]
@@ -116,9 +148,30 @@ def otimes(quat, q):
                      [w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2]])
     return qout
 
+def inverse(quat):
+    w = quat[0,0]
+    x = quat[1,0]
+    y = quat[2,0]
+    z = quat[3,0]
+
+    qout = np.array([[w],
+                     [-x],
+                     [-y],
+                     [-z]])
+    return qout
+
 def boxplus(quat, delta):
     # set_trace()
     return otimes(quat, exp(delta))
+
+def boxminus(quat, q):
+
+    dq = otimes(inverse(q), quat)
+    if dq[0,0] < 0.0:
+        dq = -dq
+
+    dq = log(dq)
+    return dq
 
 
 def R_v2_to_b(phi):

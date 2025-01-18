@@ -7,7 +7,11 @@ from IPython.core.debugger import set_trace
 
 import matplotlib.pyplot as plt
 
-file = 'superData/2dProcessed.json'
+file = 'superData/3dProcessedBad.json'
+# file = 'superData/3dProcessedBest.json'
+# file = 'superData/2dProcessedGood.json'
+# file = 'superData/3dRVOProcessed.json'
+# file = 'superData/3dRVO_KFProcessed.json'
 
 plt.rcParams.update({'font.size': 15})
 
@@ -30,7 +34,7 @@ ax.title.set_text(" ")
 # ax.scatter(data['collisionRange'], data['numVehicles'])
 ax.scatter( collisionRange[zerosInd], collisionsPerVel[zerosInd], color='red', s=20, marker="*", label='Zero Collisions' )
 ax.scatter( collisionRange[notZerosInd], collisionsPerVel[notZerosInd], s=20, marker="o", label='Non-Zero Collisions' )
-# ax.set_ylim([-0.5,2.5])
+ax.set_ylim([-0.1,2.1])
 
 plt.xlabel('Collision Range (m)')
 plt.ylabel('# Collisions / Vehicle')
@@ -42,5 +46,8 @@ ax.title.set_text(" ")
 
 ax.scatter( velocity[zerosInd], collisionRange[zerosInd], color='red', s=20, marker="*", label='Zero Collisions' )
 ax.scatter( velocity[notZerosInd], collisionRange[notZerosInd], s=20, marker="o", label='Non-Zero Collisions' )
+
+plt.xlabel('Max Velocity (m/s)')
+plt.ylabel('Collision Range (m)')
 
 plt.show()

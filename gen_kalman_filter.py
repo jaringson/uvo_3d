@@ -106,11 +106,14 @@ class GenKalmanFilter:
         return np.array([[range],[zenith],[azimuth],
                     [rangeDot],[zenithDot],[azimuthDot]])
 
+        # return np.array([[range],[zenith],[azimuth]])
+
     def update_radar(self, measurement):
 
         R = self.build_polar_R()
         z, H = self.build_polar_H()
         C = self.C_vel_
+        # C = self.C_pos_
 
         K = self.P_ @ H.T @ inv(H@self.P_@H.T + R)
         # self.xhat_ = self.xhat_ + K@(measurement -C@self.xhat_)
@@ -149,7 +152,7 @@ class GenKalmanFilter:
             [0, 0, self.dt_**4/24, 0, 0, self.dt_**3/6, 0, 0, self.dt_**2/2, 0, 0, self.dt_**1/1]
             ])
 
-        Q = 2.0 * self.alphaQ_jrk_ * self.sigmaQ_jrk_**2 * Q;
+        Q = 2.0 * self.alphaQ_jrk_ * self.sigmaQ_jrk_**2 * Q
 
         return Q
 
@@ -184,6 +187,10 @@ class GenKalmanFilter:
                         self.sigmaR_rangeDot_**2,
                         self.sigmaR_zenithDot_**2,
                         self.sigmaR_azimuthDot_**2])
+
+        # R = np.diag([self.sigmaR_range_**2,
+        #                 self.sigmaR_zenith_**2,
+        #                 self.sigmaR_azimuth_**2])
         # set_trace()
         return R
 

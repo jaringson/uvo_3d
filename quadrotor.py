@@ -65,8 +65,8 @@ class QuadDynamics:
     def _fg(self, state, u):
         xdot = np.zeros((12,1))
 
-        taus = u[0:3]
-        thrust = u[3]
+        thrust = u[0]
+        taus = u[1:4]
 
         x = copy.copy(state[0:3])
         v = copy.copy(state[3:6])
@@ -76,7 +76,8 @@ class QuadDynamics:
         xdot[0:3] = rota(q, v)
         xdot[3:6] = -self.e3_ * thrust * self.max_thrust_ / self.mass_  - self.linear_drag_ @ v + \
                 self.gravity_ * rotp(q, self.e3_) - np.cross(omega.T, v.T).T
-        xdot[6:9] = omega
+        xdot[6:9] = rota(q, omega)
+        # xdot[6:9] = omega
         xdot[9:12] = self.inertia_inv_ @ (taus - np.cross(omega.T, (self.inertia_matrix_ @ omega).T).T
             - self.angular_drag_ @ omega)
 
